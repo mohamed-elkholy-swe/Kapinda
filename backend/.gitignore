@@ -1,0 +1,7 @@
+# Firebase private key
+config/firebase-service-account.json
+config/*.json
+
+.env
+.env.*
+!.env.example

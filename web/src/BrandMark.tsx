@@ -1,0 +1,3 @@
+export default function BrandMark({className = 'brand-icon'}: {className?: string}) {
+  return <span className={className} aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><path d="M32 4 42 10 54 10 54 22 60 32 54 42 54 54 42 54 32 60 22 54 10 54 10 42 4 32 10 22 10 10 22 10Z" stroke="currentColor" strokeWidth="1.1"/><path d="M32 13C28 22 22 24 22 32c0 6 5 10 10 10s10-4 10-10c0-8-6-10-10-19Z" stroke="currentColor" strokeWidth="1.6"/><path d="M32 42V53M32 48C21 48 17 43 17 37c8 0 12 4 15 11Zm0 0c11 0 15-5 15-11-8 0-12 4-15 11Z" stroke="currentColor" strokeWidth="1.5"/><path d="m25 26 7 7 7-7M32 21v12" stroke="currentColor" strokeWidth="1.2"/></svg></span>;
+}

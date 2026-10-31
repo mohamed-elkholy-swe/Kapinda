@@ -1,0 +1,21 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+**/*service-account*.json
+**/*firebase-adminsdk*.json
+info/
+
+# Dependencies, generated output and local tools
+node_modules/
+target/
+dist/
+.npm-cache/
+.idea/
+.agents/
+.codex/
+.local-archive/
+*.log
+web/*preview*.jpg
+web/.qa/
+mobile/

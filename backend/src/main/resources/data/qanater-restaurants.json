@@ -1,0 +1,547 @@
+[
+  {
+    "id": "fatatry-el-qalyoubi",
+    "name": "فطاطري القليوبي",
+    "category": "pizza",
+    "rating": "4.0",
+    "art": "pizza",
+    "details": {
+      "phone": "01221304268",
+      "address": "54RM+RCV، مدينة القناطر الخيرية، القناطر الخيرية، محافظة القليوبية 6404101",
+      "latitude": 30.1921244,
+      "longitude": 31.1332189,
+      "mapsUrl": "https://maps.app.goo.gl/jgZ7A9QP1yMcYDoB7",
+      "reviewCount": 939,
+      "openingHours": "مفتوح على مدار الساعة",
+      "menuSourceUrl": "https://www.delivery44.com/2021/09/Fatatry-Qalyubi-restaurant.html",
+      "verifiedOn": "2026-10-31",
+      "orderingTermsVerified": false,
+      "photoUrl": "https://lh3.googleusercontent.com/grass-cs/AABkmLdN2Qx0GKYoZ3P0GLuvcLW6WTj7dD5FKF9JZ623uYlu6Wa0e297xZ7X7Gj75YB2lkTjTMKpWz0Bz09ViM4SzxNDWBluoB5_gy4S38NtpOG_kZzROw70gR4MGnIOA0UUcFGnELdz=w408-h272-k-no",
+      "photoSourceUrl": "https://maps.app.goo.gl/jgZ7A9QP1yMcYDoB7",
+      "menuImages": [
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg5x4TgbrSemJHuCT_yAtXm27orMCYwLUK2B11FLydXRC3rsYESC8vh4t_cHOFNsoHr1CAmxqWfA0wnJqx87e6NvhsjdlePzTRXjtBFItkUzI1MzfMeFFcgjmjfXl7jWRgkiWGQveRx76ND/s16000-rw/%25D9%2585%25D8%25B7%25D8%25B9%25D9%2585-%25D9%2581%25D8%25B7%25D8%25A7%25D8%25B7%25D8%25B1%25D9%258A-%25D8%25A7%25D9%2584%25D9%2582%25D9%2584%25D9%258A%25D9%2588%25D8%25A8%25D9%258A.jpg",
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjgf9ihNkwULGDbnfatyCyEoIuSYhgf5Vlo8MOrU9b1lm7eDE0Ii4VEVc_szxKs4qGjKySuLL1rBxThdmZKrT0MGVeXvvp23hBGlT9EKtW4bCV5mDW4XWAKcU4ZmdEzV_19Hd8ssxQ-pf-4/s16000-rw/%25D9%2585%25D8%25B7%25D8%25B9%25D9%2585-%25D9%2581%25D8%25B7%25D8%25A7%25D8%25B7%25D8%25B1%25D9%258A-%25D8%25A7%25D9%2584%25D9%2582%25D9%2584%25D9%258A%25D9%2588%25D8%25A8%25D9%258A-1.jpg",
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiI0a3R2j39heCDeYQdSXqUXWSZrLMLqWcpYv__TMcYwjX8ORdADBMr8GM8U1qYEagZBNTvKTzz3SyDH_1VnYX0ECX_tEEJrGub4uMfJEUcxyYh-eBFTjeMdHScVdCxUs8PUiMfll4CKvka/s16000-rw/%25D9%2585%25D8%25B7%25D8%25B9%25D9%2585-%25D9%2581%25D8%25B7%25D8%25A7%25D8%25B7%25D8%25B1%25D9%258A-%25D8%25A7%25D9%2584%25D9%2582%25D9%2584%25D9%258A%25D9%2588%25D8%25A8%25D9%258A-2.jpg"
+      ],
+      "menuNote": "منيو قديم منشور عام 2023 لعدة فروع؛ مطابقة فرع القناطر والأسعار الحالية غير مؤكدة. الأصناف المختارة من النص المنشور، والسعر حسب المصدر القديم.",
+      "catalogVersion": 2
+    },
+    "menu": [
+      {
+        "id": "fatatry-el-qalyoubi-import-1",
+        "name": "فطير فراخ كيري",
+        "price": 63,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-2",
+        "name": "فطير سجق كيري",
+        "price": 58,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-3",
+        "name": "فطير جبنة رومي سادة",
+        "price": 28,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-4",
+        "name": "رول فراخ",
+        "price": 35,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-5",
+        "name": "رول لحم",
+        "price": 33,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-6",
+        "name": "رول مكس جبن",
+        "price": 31,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-7",
+        "name": "رول سوسيس جبنة",
+        "price": 27,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-8",
+        "name": "رول زنجر",
+        "price": 38,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-9",
+        "name": "حواوشي لحمة",
+        "price": 36,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-10",
+        "name": "حواوشي سجق بلدي",
+        "price": 36,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-11",
+        "name": "ساندوتش شاورما فراخ",
+        "price": 27,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-12",
+        "name": "مكرونة فرن",
+        "price": 36,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-13",
+        "name": "مكرونة نجرسكو",
+        "price": 42,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-14",
+        "name": "كريب فراخ",
+        "price": 33,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      },
+      {
+        "id": "fatatry-el-qalyoubi-import-15",
+        "name": "كريب مشكل جبن",
+        "price": 29,
+        "description": "السعر من مصدر قديم لعدة فروع؛ مطابقة الفرع غير مؤكدة."
+      }
+    ]
+  },
+  {
+    "id": "el-galad-grill",
+    "name": "مشويات الجلاد",
+    "category": "grill",
+    "rating": "3.9",
+    "art": "grill",
+    "details": {
+      "phone": "01111160100",
+      "address": "18 كورنيش النيل، محافظة القليوبية",
+      "latitude": 30.1915963,
+      "longitude": 31.1335841,
+      "mapsUrl": "https://maps.app.goo.gl/KHbgHhqpfWYAHwBK7",
+      "reviewCount": 75,
+      "openingHours": null,
+      "menuSourceUrl": "https://menuegypt.com/Mashwayat--El-Hag-Naser-El-Galad?menu=2",
+      "verifiedOn": "2026-10-31",
+      "orderingTermsVerified": false,
+      "photoUrl": "https://lh3.googleusercontent.com/grass-cs/AABkmLd9OlzerymI28BfoBUNtyl4CzLqC9EPuV7h3IkyR7rNqcFZIGK5ox8bt1LQ6RYVbf-ORjS3JO-GNkqwR5K4t7Yu7OquNRJu3PkXsb1DRI0bpF3FKm19qS2qshP3ENjQERVDp2lc=w408-h263-k-no",
+      "photoSourceUrl": "https://maps.app.goo.gl/KHbgHhqpfWYAHwBK7",
+      "menuImages": [
+        "https://menuegypt.com/restaurants_menus/Mashwayat--El-Hag-Naser-El-Galad_menu_1.jpg",
+        "https://menuegypt.com/restaurants_menus/Mashwayat--El-Hag-Naser-El-Galad_menu_2.jpg",
+        "https://menuegypt.com/restaurants_menus/Mashwayat--El-Hag-Naser-El-Galad_menu_3.jpg",
+        "https://menuegypt.com/restaurants_menus/Mashwayat--El-Hag-Naser-El-Galad_menu_4.jpg",
+        "https://menuegypt.com/restaurants_menus/Mashwayat--El-Hag-Naser-El-Galad_menu_5.jpg"
+      ],
+      "menuNote": "منيو وعروض منشورة في مصدر مؤرخ 2019؛ الأسعار والعروض ومواعيدها قديمة وغير مؤكدة حالياً.",
+      "catalogVersion": 2
+    },
+    "menu": [
+      {
+        "id": "el-galad-grill-import-1",
+        "name": "عرض كيلو كفتة",
+        "price": 100,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      },
+      {
+        "id": "el-galad-grill-import-2",
+        "name": "عرض كيلو فراخ شوّاية",
+        "price": 70,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      },
+      {
+        "id": "el-galad-grill-import-3",
+        "name": "عرض كيلو فراخ فحم",
+        "price": 70,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      },
+      {
+        "id": "el-galad-grill-import-4",
+        "name": "عرض كيلو كباب",
+        "price": 220,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      },
+      {
+        "id": "el-galad-grill-import-5",
+        "name": "عرض كيلو طرب",
+        "price": 150,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      },
+      {
+        "id": "el-galad-grill-import-6",
+        "name": "عرض كيلو ريش",
+        "price": 220,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      },
+      {
+        "id": "el-galad-grill-import-7",
+        "name": "عرض كيلو كبدة ضاني",
+        "price": 220,
+        "description": "عرض قديم: سلطة وعيش وطحينة؛ المصدر يذكر من الساعة 6 إلى 8. السعر غير مؤكد."
+      }
+    ]
+  },
+  {
+    "id": "awlad-mosaad-bayoumi",
+    "name": "كبابجى اولاد مسعد بيومى",
+    "category": "grill",
+    "rating": "4.2",
+    "art": "grill",
+    "details": {
+      "phone": "01011113928",
+      "address": "مدينة القناطر الخيرية، القناطر الخيرية، محافظة القليوبية 6404003",
+      "latitude": 30.1892268,
+      "longitude": 31.1358824,
+      "mapsUrl": "https://maps.app.goo.gl/MDiXf5rztfno8dbu5",
+      "reviewCount": 1101,
+      "openingHours": null,
+      "menuSourceUrl": "https://restaurantguru.com/kbabja-bywma-Egypt-2/menu",
+      "verifiedOn": "2026-10-31",
+      "orderingTermsVerified": false,
+      "photoUrl": "https://lh3.googleusercontent.com/grass-cs/AABkmLdi0vym0J_e1LBQNxn_7uW62z6dwxOL-bQ1t8E6AEJhxwl_dC-f9UhjMFNLOtjX4vG-iweC24jhkuki8Y188hcklpFPZ9PhUWyVh44z61-RjKLGsEz-CCCUY40x4oNlXO7x0fRSUO485lO1=w408-h296-k-no",
+      "photoSourceUrl": "https://maps.app.goo.gl/MDiXf5rztfno8dbu5",
+      "menuImages": [
+        "https://menu02.restaurantguru.com/m1/-kbabja-awlad-msad-bywma-menu.jpg"
+      ],
+      "menuNote": "صورة منيو رفعها مستخدم منذ نحو 4 سنوات؛ الأسعار الحالية وأوزان أصناف المشويات غير مؤكدة.",
+      "catalogVersion": 2
+    },
+    "menu": [
+      {
+        "id": "awlad-mosaad-bayoumi-import-1",
+        "name": "كباب شيش",
+        "price": 340,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-2",
+        "name": "كباب سياخ",
+        "price": 340,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-3",
+        "name": "ريش ضاني",
+        "price": 340,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-4",
+        "name": "كبدة - قلب - كلاوي",
+        "price": 300,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-5",
+        "name": "كفتة ضاني",
+        "price": 200,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-6",
+        "name": "طرب ضاني",
+        "price": 200,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-7",
+        "name": "موزة ضاني",
+        "price": 120,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-8",
+        "name": "فرخة على الفحم",
+        "price": 110,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-9",
+        "name": "فرخة فرن",
+        "price": 120,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-10",
+        "name": "كبدة ضاني جريل",
+        "price": 300,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-11",
+        "name": "سجق بلدي",
+        "price": 200,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-12",
+        "name": "حمام كباب — فرد",
+        "price": 40,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-13",
+        "name": "حمام محشي — فرد",
+        "price": 50,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-14",
+        "name": "طاجن عكاوي",
+        "price": 75,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-15",
+        "name": "طاجن تورلي",
+        "price": 75,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-16",
+        "name": "طاجن بامية",
+        "price": 75,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-17",
+        "name": "طاجن بطاطس",
+        "price": 75,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-18",
+        "name": "طاجن ملوخية",
+        "price": 10,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-19",
+        "name": "حواوشي",
+        "price": 15,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-20",
+        "name": "صاروخ كفتة",
+        "price": 15,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      },
+      {
+        "id": "awlad-mosaad-bayoumi-import-21",
+        "name": "أرز بسمتي",
+        "price": 10,
+        "description": "السعر من صورة منيو قديمة؛ يُرجى تأكيد الوزن والسعر."
+      }
+    ]
+  },
+  {
+    "id": "khair-zad-sweets",
+    "name": "حلواني خير زاد",
+    "category": "dessert",
+    "rating": "4.3",
+    "art": "dessert",
+    "details": {
+      "phone": "01063674217",
+      "address": "54QQ+R8J، مدينة القناطر الخيرية، القناطر الخيرية، محافظة القليوبية 6404007",
+      "latitude": 30.1891351,
+      "longitude": 31.1383294,
+      "mapsUrl": "https://maps.app.goo.gl/81bKDgmcJ2sNZ7QMA",
+      "reviewCount": 65,
+      "openingHours": "مفتوح على مدار الساعة",
+      "menuSourceUrl": "https://menuegypt.com/ar/حلواني-خير-زاد/al-qanater-al-khaireya",
+      "verifiedOn": "2026-10-31",
+      "orderingTermsVerified": false,
+      "photoUrl": "https://lh3.googleusercontent.com/grass-cs/AABkmLd1gXJN2cDN_HTNqJTBbVyOMymAsQ2UJ-2c2-TtEM3440C7hXFTpN7HFLx-PNqMhY42CoqCwm30axkdz7oXAFBmsTGsrY4Vx5lw-Y_TkRGr5p4PQimld9JHC0e1iu_M3H5B6_Xb=w408-h544-k-no",
+      "photoSourceUrl": "https://maps.app.goo.gl/81bKDgmcJ2sNZ7QMA",
+      "menuImages": [
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_1.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_2.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_3.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_4.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_5.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_6.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_7.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_8.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_9.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_10.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_11.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_12.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_13.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_14.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_15.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_16.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_17.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_18.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_19.jpg",
+        "https://menuegypt.com/restaurants_menus/khair-zad-sweet_menu_20.jpg"
+      ],
+      "menuNote": "منيو منشور على Menu Egypt؛ آخر تحديث ظاهر للمصدر 15 أغسطس 2026. الأسعار ووحدة البيع ومطابقة الفرع تحتاج تأكيد المطعم.",
+      "catalogVersion": 2
+    },
+    "menu": [
+      {
+        "id": "khair-zad-sweets-import-1",
+        "name": "مشكل لوكس",
+        "price": 220,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-2",
+        "name": "مشكل مكسرات",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-3",
+        "name": "علف — سوداني وسمسم وحمص",
+        "price": 230,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-4",
+        "name": "قرص حمص",
+        "price": 200,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-5",
+        "name": "قرص نوجة",
+        "price": 200,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-6",
+        "name": "قرص سمسمية",
+        "price": 200,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-7",
+        "name": "ملبن رش",
+        "price": 220,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-8",
+        "name": "ملبن سادة",
+        "price": 210,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-9",
+        "name": "ملبن جيلي",
+        "price": 210,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-10",
+        "name": "ملبن قشطة",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-11",
+        "name": "دومية سوداني",
+        "price": 220,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-12",
+        "name": "دومية بندق",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-13",
+        "name": "علف بابا",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-14",
+        "name": "ملبن حبل عين جمل",
+        "price": 450,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-15",
+        "name": "لديدة مكسرات",
+        "price": 350,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-16",
+        "name": "حمام مكسرات",
+        "price": 350,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-17",
+        "name": "لديدة زبيب",
+        "price": 300,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-18",
+        "name": "حمام زبيب",
+        "price": 300,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-19",
+        "name": "بسبوسة سادة",
+        "price": 220,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-20",
+        "name": "بسبوسة مكسرات",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-21",
+        "name": "شكلمة",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-22",
+        "name": "مربات مكسرات",
+        "price": 350,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-23",
+        "name": "مربات سادة",
+        "price": 260,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-24",
+        "name": "قشطة سادة",
+        "price": 220,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      },
+      {
+        "id": "khair-zad-sweets-import-25",
+        "name": "قشطة مكسرات",
+        "price": 280,
+        "description": "السعر من صفحة الحلاوة؛ وحدة البيع والسعر غير مؤكدين."
+      }
+    ]
+  }
+]

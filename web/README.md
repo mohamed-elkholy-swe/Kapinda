@@ -106,3 +106,13 @@ The role picker omits ADMIN for a Sub Admin and locks existing full-Admin accoun
 Delivery responses include assignedToMe, assignedToOther, canClaim and canUpdate. Managers see all delivery work and can update another courier's delivery progress without taking ownership. Couriers remain limited to their own jobs and available ready orders. Restaurant managers can open the restaurant workspace for every restaurant without individual assignments.
 
 The Kapinda homepage now includes a stylised illustration of the Mohamed Ali barrages, their repeated arches and towers above the Nile. It is an artistic homage rather than a measured architectural drawing. Landmark context: https://sis.gov.eg/en/egypt/tourism/recreational-tourism/el-qanater-el-khayreya/
+
+## Restaurant inbox and in-app notifications
+
+Restaurant staff can open Restaurant orders to see orders containing items from their assigned restaurants. For mixed-restaurant orders they see only their restaurants' items and subtotal; customer contact and unrelated items are omitted. Personal order history remains in the account screen. Admin and Sub Admin can open the restaurant inbox too.
+
+The header bell shows persisted new-order and status-change notifications with an unread count. It refreshes every 30 seconds while the tab is visible and on focus/reconnection. Clicking a notification records read state and opens the appropriate order workspace. This does not send browser push notifications, email or SMS.
+
+Restart the backend after this update to create the notifications table. GET /api/restaurant-workspace/orders is restricted to restaurant staff and management. GET /api/notifications and PUT /api/notifications/{id}/read require an active authenticated account and enforce recipient ownership. Notification visibility is checked again against current restaurant assignments and roles.
+
+Notification actions: Mark all as read updates only the signed-in account; Remove all dismisses that account's existing notifications persistently. A later new status can still create a new notification. GET requests never create notifications from historical orders. Customer notifications concern their own orders; restaurant notifications concern assigned restaurants; delivery notifications cover pickup/delivery stages only, with active assignment checks; management sees platform updates. Restaurant staff have one Restaurant orders navigation entry.

@@ -6,6 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DeliveryService {
+  private com.deliveryapp.notification.NotificationService notifications;
+  @org.springframework.beans.factory.annotation.Autowired
+  public void setNotifications(com.deliveryapp.notification.NotificationService notifications) { this.notifications=notifications; }
+  private void notifyOrder(OrderEntity order) { if(notifications!=null) notifications.record(order); }
   private final OrderRepository repository;
   private final OrderService orders;
   public DeliveryService(OrderRepository repository, OrderService orders) { this.repository = repository; this.orders = orders; }
@@ -48,5 +52,6 @@ public class DeliveryService {
       || (order.getStatus() == OrderStatus.OUT_FOR_DELIVERY && next == OrderStatus.DELIVERED);
     if (!allowed) throw new IllegalArgumentException("Delivery status can only move from ready to out for delivery to delivered");
     order.setStatus(next);
+    notifyOrder(order);
   }
 }

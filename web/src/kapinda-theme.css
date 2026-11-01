@@ -45,3 +45,13 @@ footer{background:#123f45;border:1px solid #a88b52;color:#eee4cb;border-radius:8
 .managed-art { position: relative; overflow: hidden; }
 .managed-art > .restaurant-photo { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
 .managed-art .managed-category { position: relative; z-index: 1; }
+
+.notification-bell { position:relative; }
+.notification-trigger { position:relative; display:flex; align-items:center; }
+.notification-count { position:absolute; inset-block-start:-6px; inset-inline-end:-5px; background:#a44832; color:white; border-radius:999px; padding:2px 5px; font-size:11px; }
+.notification-panel { position:absolute; inset-inline-end:0; top:calc(100% + 12px); width:min(360px,calc(100vw - 32px)); max-height:65vh; overflow:auto; z-index:100; box-shadow:0 12px 45px #123c3c25; }
+.notification-item { display:grid; gap:.4rem; width:100%; text-align:start; padding:1rem; border-radius:10px; margin-block:.4rem; }
+.notification-item.unread { background:#e8f1eb; border-inline-start:3px solid #17615e; }
+@media(max-width:600px) { .notification-panel { position:fixed; inset-inline:16px; top:110px; width:auto; } }
+
+.notification-actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-block-end:.75rem; }

@@ -88,6 +88,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
   private boolean requiresAuthentication(String uri) {
     return uri.startsWith("/api/account")
       || uri.startsWith("/api/admin")
+      || uri.startsWith("/api/notifications")
       || uri.startsWith("/api/delivery")
       || uri.startsWith("/api/restaurant-workspace")
       || uri.startsWith("/api/orders");

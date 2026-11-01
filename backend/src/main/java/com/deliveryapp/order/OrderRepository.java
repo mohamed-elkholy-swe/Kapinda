@@ -12,6 +12,8 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
   @Query("select o from OrderEntity o where (o.deliveryPersonUid = :uid) or (o.deliveryPersonUid is null and o.status = com.deliveryapp.order.OrderStatus.READY) order by o.createdAt desc")
   List<OrderEntity> findDeliveryTasks(@Param("uid") String uid);
+  @Query("select distinct o from OrderEntity o join o.items i where i.restaurantId in :ids order by o.createdAt desc")
+  List<OrderEntity> findAssignedRestaurantOrders(@Param("ids") java.util.Set<String> ids);
   List<OrderEntity> findAllByCustomerUidOrderByCreatedAtDesc(String customerUid);
   @Query("select distinct o from OrderEntity o join fetch o.items i where i.restaurantId = :restaurantId order by o.createdAt desc")
   List<OrderEntity> findAllForRestaurant(@Param("restaurantId") String restaurantId);

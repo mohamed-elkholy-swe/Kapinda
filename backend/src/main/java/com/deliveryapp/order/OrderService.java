@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
+  private com.deliveryapp.notification.NotificationService notifications;
+  @org.springframework.beans.factory.annotation.Autowired
+  public void setNotifications(com.deliveryapp.notification.NotificationService notifications) { this.notifications=notifications; }
+  private void notifyOrder(OrderEntity order) { if(notifications!=null) notifications.record(order); }
   private static final int DELIVERY_FEE = 18;
 
   private final RestaurantService restaurantService;
@@ -55,7 +59,9 @@ public class OrderService {
     );
 
     orderItems.forEach(order::addItem);
-    return toResponse(orderRepository.save(order));
+    OrderEntity saved=orderRepository.save(order);
+    notifyOrder(saved);
+    return toResponse(saved);
   }
 
   @Transactional(readOnly = true)
@@ -86,6 +92,7 @@ public class OrderService {
   public OrderResponse updateStatus(String id, OrderStatus status) {
     OrderEntity order = orderRepository.findById(parseId(id)).orElseThrow(() -> new OrderNotFoundException(id));
     order.setStatus(status);
+    notifyOrder(order);
     return toResponse(order);
   }
 

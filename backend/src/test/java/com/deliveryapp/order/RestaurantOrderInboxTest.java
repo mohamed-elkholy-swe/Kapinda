@@ -13,8 +13,9 @@ class RestaurantOrderInboxTest {
   var order=new OrderEntity(OrderStatus.PLACED,"buyer","private-phone","private-address","City",140,18,158,Instant.now());
   order.addItem(new OrderItemEntity("mine","My kitchen","dish","Pizza",2,50,100));order.addItem(new OrderItemEntity("other","Other kitchen","secret","Other dish",1,40,40));
   when(repository.findAssignedRestaurantOrders(Set.of("mine"))).thenReturn(List.of(order));
+  when(service.customerName(order)).thenReturn("Ahmed Ali");
   var result=new RestaurantOrdersController(accounts,repository,service).list(user);
-  assertEquals(1,result.size());assertEquals(1,result.get(0).items().size());assertEquals("Pizza",result.get(0).items().get(0).itemName());assertEquals(100,result.get(0).subtotal());assertEquals("",result.get(0).customerPhone());assertEquals("",result.get(0).customerAddress());
+  assertEquals("Ahmed Ali",result.get(0).customerName());assertEquals(1,result.size());assertEquals(1,result.get(0).items().size());assertEquals("Pizza",result.get(0).items().get(0).itemName());assertEquals(100,result.get(0).subtotal());assertEquals("",result.get(0).customerPhone());assertEquals("",result.get(0).customerAddress());
  }
  @Test void noAssignmentsReturnsEmptyAndCustomersCannotReadRestaurantOrders(){
   var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);var controller=new RestaurantOrdersController(accounts,repository,mock(OrderService.class));var user=new AuthenticatedUser("u","u@example.test");

@@ -25,7 +25,7 @@ class OrderHistoryTest {
   void historyNeverReadsUnfilteredOrders() {
     OrderRepository repository = mock(OrderRepository.class);
     when(repository.findAllByCustomerUidOrderByCreatedAtDesc("customer-a")).thenReturn(List.of());
-    OrderService service = new OrderService(mock(RestaurantService.class), repository);
+    OrderService service = new OrderService(mock(RestaurantService.class), repository, mock(com.deliveryapp.account.AccountRepository.class));
     assertTrue(service.findAllForCustomer("customer-a").isEmpty());
     verify(repository).findAllByCustomerUidOrderByCreatedAtDesc("customer-a");
     verify(repository, never()).findAll();

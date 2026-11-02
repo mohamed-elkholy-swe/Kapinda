@@ -19,10 +19,12 @@ public class OrderService {
 
   private final RestaurantService restaurantService;
   private final OrderRepository orderRepository;
+  private final com.deliveryapp.account.AccountRepository accounts;
 
-  public OrderService(RestaurantService restaurantService, OrderRepository orderRepository) {
+  public OrderService(RestaurantService restaurantService, OrderRepository orderRepository, com.deliveryapp.account.AccountRepository accounts) {
     this.restaurantService = restaurantService;
     this.orderRepository = orderRepository;
+    this.accounts = accounts;
   }
 
   @Transactional
@@ -117,8 +119,17 @@ public class OrderService {
       order.getSubtotal(),
       order.getDeliveryFee(),
       order.getTotal(),
-      order.getCreatedAt()
+      order.getCreatedAt(),
+      false,
+      customerName(order)
     );
+  }
+
+  String customerName(OrderEntity order) {
+    if (order.getCustomerUid() == null || order.getCustomerUid().isBlank()) return "";
+    return accounts.findById(order.getCustomerUid())
+      .map(com.deliveryapp.account.AccountEntity::getDisplayName)
+      .map(String::trim).orElse("");
   }
 
   private Long parseId(String id) {

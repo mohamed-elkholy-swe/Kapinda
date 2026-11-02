@@ -3,6 +3,6 @@ export type MenuItem = { id: string; name: string; description: string; price: n
 export type Restaurant = { id: string; name: string; category: string; rating: string; deliveryTime: string; minimumOrder: number; art: string; menu: MenuItem[]; details?: RestaurantDetails | null };
 export type Line = { restaurantId: string; restaurantName: string; menuItemId: string; name: string; price: number; quantity: number };
 export const statuses = ['PLACED','ACCEPTED','PREPARING','READY','OUT_FOR_DELIVERY','DELIVERED','CANCELLED'] as const;
-export type Order = { id: string; status: typeof statuses[number]; customerPhone: string; customerAddress: string; area: string; subtotal: number; deliveryFee: number; total: number; createdAt: string; items: { itemName: string; restaurantName?: string; quantity: number; lineTotal: number }[] };
+export type Order = { id: string; status: typeof statuses[number]; customerName?: string; customerPhone: string; customerAddress: string; area: string; subtotal: number; deliveryFee: number; total: number; createdAt: string; items: { itemName: string; restaurantName?: string; quantity: number; lineTotal: number }[] };
 export type Role = 'ADMIN' | 'SUB_ADMIN' | 'CUSTOMER' | 'DELIVERY' | 'RESTAURANT';
 export type Account = { uid?: string; email?: string; displayName?: string; phoneNumber?: string; role: Role; status: string; restaurantIds?: string[] };

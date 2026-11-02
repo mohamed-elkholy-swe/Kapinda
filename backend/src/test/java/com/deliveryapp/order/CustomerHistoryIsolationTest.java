@@ -15,7 +15,7 @@ class CustomerHistoryIsolationTest {
     var foreign = new OrderEntity(OrderStatus.PLACED, "existing-customer", "01012345678", "Other address", "Area", 100, 18, 118, Instant.now());
     // The service also checks ownership if a repository ever returns an unrelated record.
     when(repository.findAllByCustomerUidOrderByCreatedAtDesc("new-customer")).thenReturn(List.of(foreign));
-    var service = new OrderService(mock(RestaurantService.class), repository);
+    var service = new OrderService(mock(RestaurantService.class), repository, mock(com.deliveryapp.account.AccountRepository.class));
     assertTrue(service.findAllForCustomer("new-customer").isEmpty());
     verify(repository, never()).findAll();
   }
@@ -31,7 +31,7 @@ class CustomerHistoryIsolationTest {
   }
   @Test void blankIdentityCannotFallBackToThePlatformOrderList() {
     var repository = mock(OrderRepository.class);
-    var service = new OrderService(mock(RestaurantService.class), repository);
+    var service = new OrderService(mock(RestaurantService.class), repository, mock(com.deliveryapp.account.AccountRepository.class));
     assertThrows(SecurityException.class, () -> service.findAllForCustomer(""));
     verifyNoInteractions(repository);
   }

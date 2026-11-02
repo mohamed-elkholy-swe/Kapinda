@@ -19,7 +19,7 @@ public class RestaurantOrdersController {
     return repository.findAssignedRestaurantOrders(ids).stream().map(order -> {
       var items=order.getItems().stream().filter(item -> ids.contains(item.getRestaurantId())).toList();
       int subtotal=items.stream().mapToInt(OrderItemEntity::getLineTotal).sum();
-      return new OrderResponse(String.valueOf(order.getId()),order.getStatus(),"","",order.getArea(),items.stream().map(i -> new OrderItemResponse(i.getRestaurantId(),i.getRestaurantName(),i.getMenuItemId(),i.getItemName(),i.getQuantity(),i.getUnitPrice(),i.getLineTotal())).toList(),subtotal,0,subtotal,order.getCreatedAt(),!order.getItems().isEmpty() && order.getItems().stream().allMatch(i->ids.contains(i.getRestaurantId())));
+      return new OrderResponse(String.valueOf(order.getId()),order.getStatus(),"","",order.getArea(),items.stream().map(i -> new OrderItemResponse(i.getRestaurantId(),i.getRestaurantName(),i.getMenuItemId(),i.getItemName(),i.getQuantity(),i.getUnitPrice(),i.getLineTotal())).toList(),subtotal,0,subtotal,order.getCreatedAt(),!order.getItems().isEmpty() && order.getItems().stream().allMatch(i->ids.contains(i.getRestaurantId())),orders.customerName(order));
     }).toList();
   }
 

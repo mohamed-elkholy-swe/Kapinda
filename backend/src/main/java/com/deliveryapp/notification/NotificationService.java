@@ -50,10 +50,15 @@ public class NotificationService {
     return switch(account.getRole()) { case ADMIN,SUB_ADMIN -> "admin"; case RESTAURANT -> "restaurantOrders"; case DELIVERY -> "delivery"; case CUSTOMER -> "orders"; };
   }
 
+  @org.springframework.beans.factory.annotation.Autowired
+  private org.springframework.context.ApplicationEventPublisher events;
+
   @Transactional
   public void record(OrderEntity order) {
     for(var account:accountRepository.findAll()) if(eligible(account,order,order.getStatus().name())) {
-      notifications.insertOnce(account.getUid()+":"+order.getId()+":"+order.getStatus().name(),account.getUid(),order.getId(),order.getStatus().name());
+      String id=account.getUid()+":"+order.getId()+":"+order.getStatus().name();
+      if(notifications.insertOnce(id,account.getUid(),order.getId(),order.getStatus().name())>0 && events!=null)
+        events.publishEvent(new PushService.Notice(account.getUid(),order.getId(),order.getStatus().name(),id));
     }
   }
 

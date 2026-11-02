@@ -56,7 +56,7 @@ Administrators land on a separate workspace with Overview, Orders, Restaurants, 
 
 Restart the backend after this update. It adds nullable profile columns using the existing Hibernate `ddl-auto=update` setting, `PUT /api/account/me` for name/phone, and `GET /api/account/me/orders` for identity-scoped customer history. The backend derives ownership from the verified Firebase identity; callers cannot supply another customer's UID. Existing accounts and mobile response fields are preserved.
 
-This version does not include driver tracking, online payments, push notifications, installable PWA/offline behavior, or the mobile restaurant-application/portal screens. No corresponding restaurant-application/portal endpoints exist in the current backend.
+This version does not include driver tracking, online payments, offline behavior, or the mobile restaurant-application/portal screens. No corresponding restaurant-application/portal endpoints exist in the current backend.
 
 ## Build and deployment
 
@@ -111,8 +111,24 @@ The Kapinda homepage now includes a stylised illustration of the Mohamed Ali bar
 
 Restaurant staff can open Restaurant orders to see orders containing items from their assigned restaurants. For mixed-restaurant orders they see only their restaurants' items and subtotal; customer contact and unrelated items are omitted. Personal order history remains in the account screen. Admin and Sub Admin can open the restaurant inbox too.
 
-The header bell shows persisted new-order and status-change notifications with an unread count. It refreshes every 30 seconds while the tab is visible and on focus/reconnection. Clicking a notification records read state and opens the appropriate order workspace. This does not send browser push notifications, email or SMS.
+The header bell shows persisted new-order and status-change notifications with an unread count. It refreshes every 30 seconds while the tab is visible and on focus/reconnection. Clicking a notification records read state and opens the appropriate order workspace. Device push notifications are optional; see setup below. Email and SMS are not included.
 
 Restart the backend after this update to create the notifications table. GET /api/restaurant-workspace/orders is restricted to restaurant staff and management. GET /api/notifications and PUT /api/notifications/{id}/read require an active authenticated account and enforce recipient ownership. Notification visibility is checked again against current restaurant assignments and roles.
 
 Notification actions: Mark all as read updates only the signed-in account; Remove all dismisses that account's existing notifications persistently. A later new status can still create a new notification. GET requests never create notifications from historical orders. Customer notifications concern their own orders; restaurant notifications concern assigned restaurants; delivery notifications cover pickup/delivery stages only, with active assignment checks; management sees platform updates. Restaurant staff have one Restaurant orders navigation entry.
+
+## Device push notifications (phone and desktop)
+
+1. In the existing Firebase project, open Project settings > General > Your apps > web app configuration. Copy `messagingSenderId` into `VITE_FIREBASE_MESSAGING_SENDER_ID` in `web/.env.local` or your website hosting build environment.
+2. Open Project settings > Cloud Messaging > Web Push certificates > Generate key pair. Set `VITE_FIREBASE_VAPID_KEY` to its **public** key. Never put a service-account JSON or private key into the website environment. Enable the FCM Registration API / Firebase Cloud Messaging API in the same Google Cloud project if disabled.
+3. Keep the backend's existing Firebase Admin project and credentials configured for that same project, with permission to send FCM messages. Restart the backend to create `push_devices` using the existing schema-update configuration. Device endpoints require authentication; registrations belong to the authenticated account, not a caller-supplied UID.
+4. Rebuild and deploy the website over HTTPS (localhost is permitted for development). Host `/firebase-messaging-sw.js` as JavaScript at the origin root, without rewriting it to index.html, and avoid long-lived caching of this file. Serve `/manifest.webmanifest` too.
+5. Sign in, open the notification bell, and choose **Enable notifications on this device**. Approve the browser prompt on each device. On iPhone/iPad (iOS/iPadOS 16.4+), use Add to Home Screen, open the installed app, then enable notifications. Browser/OS notification settings must also allow alerts. A fully stopped browser, device power restrictions, or offline device can delay/prevent delivery.
+
+New order/status inbox entries trigger a generic lock-screen alert after the order transaction commits. Existing history is not resent. Clicks open the appropriate customer/staff workspace; normal authentication and permissions still apply. The website refreshes device registration on return while enabled. Disable notifications affects this browser only; signing out unregisters its token before completing sign-out. Enable separately on your other devices. Invalid/unregistered FCM tokens are removed by the backend.
+
+Delivery is best effort: FCM failures do not roll back orders or remove inbox history, and this implementation does not retry transient delivery failures. Generic alerts intentionally omit customer, address and order details. Inbox polling remains available if push is denied or unsupported.
+
+Verification after configuration: enable on a desktop and phone, close the website tabs (keep the browser permitted to run in the background), create/change an eligible order from another account, confirm one system notification, and tap it to open the proper workspace. Then sign out or disable on one device and confirm it receives no further alerts. Test another account and a revoked/blocked staff account to confirm recipient isolation. Actual device delivery requires configured Firebase credentials and cannot be verified by local unit tests alone.
+
+References: https://firebase.google.com/docs/cloud-messaging/web/get-started and https://webkit.org/blog/13878/.

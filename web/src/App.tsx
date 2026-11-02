@@ -2,6 +2,7 @@ import HomeBrowse from './HomeBrowse';
 import Icon from './Icon';
 import RestaurantOrders from './RestaurantOrders';
 import NotificationBell from './NotificationBell';
+import { disablePush } from './push';
 import useHistoryState from './useHistoryState';
 import useAutoRefresh from './useAutoRefresh';
 import RestaurantImage from './RestaurantImage';
@@ -176,7 +177,7 @@ export default function App() {
       {view === 'restaurant' && selected && <RestaurantPage restaurant={selected} cart={cart} t={t} money={money} onBack={() => { setSelected(null); setView('browse'); }} onAdd={item => add(selected, item)} onQuantity={(itemId, delta) => setCart(current => current.flatMap(line => line.restaurantId === selected.id && line.menuItemId === itemId ? line.quantity + delta > 0 ? [{ ...line, quantity: line.quantity + delta }] : [] : [line]))} onCheckout={() => setView('cart')}/>}
       {view === 'delivery' && user && canUseDelivery(account?.role) && <Delivery supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money}/>}
       {view === 'workspace' && user && canManageRestaurants(account?.role) && <RestaurantWorkspace supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money} onChanged={() => void loadRestaurants()}/>}
-      {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await signOut(auth!); })}/>}
+      {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await disablePush(); await signOut(auth!); })}/>}
       {view === 'restaurantOrders' && user && canManageRestaurants(account?.role) && <RestaurantOrders key={user.uid+(account?.restaurantIds||[]).join(',')} t={t} money={money}/>}
       {(view === 'orders' || view === 'track') && user && account && <Orders accountUid={user.uid} key={user.uid} t={t} money={money} onBrowse={() => setView('browse')} onOpen={() => setView('orders')}/>}
       {view === 'admin' && account && isAdministrator(account.role) && <Admin key={user?.uid} t={t} money={money} actorUid={user?.uid} actorRole={account.role} onChange={() => void loadRestaurants()}/>}

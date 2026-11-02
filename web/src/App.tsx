@@ -1,3 +1,4 @@
+import LaunchCountdown from './LaunchCountdown';
 import HomeBrowse from './HomeBrowse';
 import Icon from './Icon';
 import RestaurantOrders from './RestaurantOrders';
@@ -162,6 +163,7 @@ export default function App() {
   }
   const visible = restaurants.filter(r => (!category || r.category === category) && `${r.name} ${r.category} ${r.menu.map(m => m.name).join(' ')}`.toLowerCase().includes(search.toLowerCase()));
   return <>
+    <LaunchCountdown t={t}/>
     <div className="topline">{t('من مطاعم مدينتك، لحد باب بيتك', 'From your local favourites, straight to your door')} <span>القناطر الخيرية · Al Qanater El Khayria</span></div>
     <header className="header"><button className="brand" onClick={() => { setView('browse'); setSelected(null); }}><BrandMark/><span>{t('كابيندا', 'Kapinda')}<small>{t('طازة ومحلي', 'FRESH & LOCAL')}</small></span></button>
       <nav className={account && account.role!=='CUSTOMER'?'staff-navigation':''} aria-label={t('القائمة الرئيسية','Main navigation')}><button className={view === 'browse' ? 'active' : ''} onClick={() => setView('browse')}>{t('المطاعم','Restaurants')}</button>{account?.role!=='RESTAURANT' && !isAdministrator(account?.role) && <button className={view === 'orders' || view === 'track' ? 'active' : ''} onClick={() => { if (user) setView(account?.role==='RESTAURANT'?'restaurantOrders':'orders'); else { setError(''); setLogin(true); } }}>{t('تابع طلباتك','Follow your orders')}</button>}{account?.role==='DELIVERY' && <button onClick={() => setView('delivery')}>{t('طلبات التوصيل', 'Delivery desk')}</button>}{account?.role==='RESTAURANT' && <button onClick={()=>setView('restaurantOrders')}>{t('طلبات المطعم','Restaurant orders')}</button>}{account?.role==='RESTAURANT' && <button onClick={() => setView('workspace')}>{isAdministrator(account?.role) ? t('إدارة المطاعم', 'Restaurant workspace') : t('إدارة مطاعمي', 'My restaurants')}</button>}{isAdministrator(account?.role) && <button onClick={() => setView('admin')}>{t('الإدارة','Admin')}</button>}</nav>

@@ -14,8 +14,9 @@ public class AdminAccountController {
   public AdminAccountController(AccountAdministrationService service) { this.service = service; }
   public record AccessRequest(@NotNull AccountRole role, @NotNull @Size(max = 100) Set<String> restaurantIds) {}
   @GetMapping
-  public List<AccountResponse> search(@RequestAttribute AuthenticatedUser authenticatedUser, @RequestParam(defaultValue = "") String search) {
-    return service.search(authenticatedUser, search);
+  public List<AccountResponse> search(@RequestAttribute AuthenticatedUser authenticatedUser, @RequestParam(defaultValue = "") String search,
+                                      @RequestParam(required = false) AccountRole role) {
+    return service.search(authenticatedUser, search, role);
   }
   @PutMapping("/{uid}/access")
   public AccountResponse assign(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String uid, @Valid @RequestBody AccessRequest request) {

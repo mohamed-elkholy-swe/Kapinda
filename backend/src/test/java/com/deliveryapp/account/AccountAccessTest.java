@@ -41,9 +41,9 @@ class AccountAccessTest {
   @Test void customerCannotGrantThemselvesAdminOrSearchUsers() {
     setup(); var customer = new AuthenticatedUser("staff", "staff@example.test");
     assertThrows(SecurityException.class, () -> service.assign(customer, "staff", AccountRole.ADMIN, Set.of()));
-    assertThrows(SecurityException.class, () -> service.search(customer, ""));
+    assertThrows(SecurityException.class, () -> service.search(customer, "", null));
     verify(repository, never()).save(any());
-    verify(repository, never()).search(anyString(), any());
+    verify(repository, never()).search(anyString(), any(), any());
   }
   @Test void administratorCannotDemoteTheirOwnAccount() {
     setup();

@@ -15,20 +15,24 @@ public class OrderService {
   @org.springframework.beans.factory.annotation.Autowired
   public void setNotifications(com.deliveryapp.notification.NotificationService notifications) { this.notifications=notifications; }
   private void notifyOrder(OrderEntity order) { if(notifications!=null) notifications.record(order); }
-  private static final int DELIVERY_FEE = 18;
 
   private final RestaurantService restaurantService;
   private final OrderRepository orderRepository;
   private final com.deliveryapp.account.AccountRepository accounts;
 
-  public OrderService(RestaurantService restaurantService, OrderRepository orderRepository, com.deliveryapp.account.AccountRepository accounts) {
+  private final DeliveryAreaRepository deliveryAreas;
+
+  public OrderService(RestaurantService restaurantService, OrderRepository orderRepository, com.deliveryapp.account.AccountRepository accounts, DeliveryAreaRepository deliveryAreas) {
     this.restaurantService = restaurantService;
     this.orderRepository = orderRepository;
     this.accounts = accounts;
+    this.deliveryAreas = deliveryAreas;
   }
 
   @Transactional
   public OrderResponse create(String customerUid, CreateOrderRequest request) {
+    var area = deliveryAreas.findByName(request.area().trim())
+      .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Select a supported delivery area"));
     List<OrderItemEntity> orderItems = new ArrayList<>();
 
     for (CreateOrderItemRequest requestItem : request.items()) {
@@ -53,10 +57,10 @@ public class OrderService {
       customerUid,
       request.customerPhone(),
       request.customerAddress(),
-      request.area(),
+      area.getName(),
       subtotal,
-      DELIVERY_FEE,
-      subtotal + DELIVERY_FEE,
+      area.getFee(),
+      subtotal + area.getFee(),
       Instant.now()
     );
 

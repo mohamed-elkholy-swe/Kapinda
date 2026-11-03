@@ -16,9 +16,9 @@ public class AccountAdministrationService {
     this.accounts = accounts; this.repository = repository; this.restaurants = restaurants;
   }
   @Transactional(readOnly = true)
-  public List<AccountResponse> search(AuthenticatedUser actor, String query) {
+  public List<AccountResponse> search(AuthenticatedUser actor, String query, AccountRole role) {
     accounts.requireRole(actor, AccountRole.ADMIN);
-    return repository.search(query == null ? "" : query.trim(), PageRequest.of(0, 50)).stream().map(AccountResponse::from).toList();
+    return repository.search(query == null ? "" : query.trim(), role, PageRequest.of(0, 50)).stream().map(AccountResponse::from).toList();
   }
   @Transactional
   public AccountResponse assign(AuthenticatedUser actor, String uid, AccountRole role, Set<String> restaurantIds) {

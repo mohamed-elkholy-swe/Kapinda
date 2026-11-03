@@ -14,7 +14,7 @@ class OrderCustomerNameTest {
     var account = new AccountEntity("buyer", "buyer@example.test", AccountRole.CUSTOMER, AccountStatus.ACTIVE);
     account.updateProfile("  Ahmed Ali  ", "01012345678");
     when(accounts.findById("buyer")).thenReturn(Optional.of(account));
-    var service = new OrderService(mock(RestaurantService.class), mock(OrderRepository.class), accounts);
+    var service = new OrderService(mock(RestaurantService.class), mock(OrderRepository.class), accounts, mock(DeliveryAreaRepository.class));
     var order = new OrderEntity(OrderStatus.PLACED, "buyer", "phone", "address", "City", 50, 18, 68, Instant.now());
     assertEquals("Ahmed Ali", service.toResponse(order).customerName());
     verify(accounts).findById("buyer");
@@ -22,7 +22,7 @@ class OrderCustomerNameTest {
 
   @Test void missingAccountOrProfileNameReturnsEmptyName() {
     var accounts = mock(AccountRepository.class);
-    var service = new OrderService(mock(RestaurantService.class), mock(OrderRepository.class), accounts);
+    var service = new OrderService(mock(RestaurantService.class), mock(OrderRepository.class), accounts, mock(DeliveryAreaRepository.class));
     var order = new OrderEntity(OrderStatus.PLACED, "buyer", "phone", "address", "City", 50, 18, 68, Instant.now());
     when(accounts.findById("buyer")).thenReturn(Optional.empty());
     assertEquals("", service.toResponse(order).customerName());

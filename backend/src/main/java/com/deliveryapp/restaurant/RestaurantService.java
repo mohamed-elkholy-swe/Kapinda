@@ -86,7 +86,6 @@ public class RestaurantService {
     if (request.photoUrl() != null) item.setPhotoUrl(request.photoUrl().trim());
     if (request.category() != null) item.setCategory(request.category().trim());
     restaurant.addMenuItem(item);
-    menuItemRepository.save(item);
     return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory());
   }
 

@@ -9,7 +9,7 @@ export default function MenuCategory({ title, count, children }: { title: string
     <h3 className="menu-category-title"><button type="button" className="menu-category-toggle" aria-expanded={expanded} aria-controls={id} onClick={() => setExpanded(value => !value)}>
       <span>{title} <small className="count-pill">{count}</small></span><span aria-hidden="true">{expanded ? '−' : '+'}</span>
     </button></h3>
-    <div id={id} hidden={!expanded}>{children}</div>
+    <div id={id} hidden={!expanded}>{expanded && children}</div>
   </section>;
 }
 
@@ -17,7 +17,7 @@ export function ManagedMenuCategories({ restaurant, t, renderItem }: { restauran
   const categories = [...new Set([...(restaurant.details?.menuCategories || []), ...restaurant.menu.map(item => item.category?.trim() || '')])];
   return categories.map(category => {
     const items = restaurant.menu.filter(item => (item.category?.trim() || '') === category);
-    return <MenuCategory key={`${restaurant.id}-${category}`} title={category || t('أصناف أخرى', 'Other items')} count={items.length}>
+    return <MenuCategory key={JSON.stringify([restaurant.id, category, items.length])} title={category || t('أصناف أخرى', 'Other items')} count={items.length}>
       {items.length ? items.map(renderItem) : <p className="muted">{t('لا توجد أصناف في هذا القسم بعد.', 'No dishes in this category yet.')}</p>}
     </MenuCategory>;
   });

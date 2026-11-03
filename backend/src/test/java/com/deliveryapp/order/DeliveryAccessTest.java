@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class DeliveryAccessTest {
   private final OrderRepository repository = mock(OrderRepository.class);
-  private final DeliveryService service = new DeliveryService(repository, new OrderService(mock(RestaurantService.class), repository, mock(com.deliveryapp.account.AccountRepository.class)));
+  private final DeliveryService service = new DeliveryService(repository, new OrderService(mock(RestaurantService.class), repository, mock(com.deliveryapp.account.AccountRepository.class), mock(DeliveryAreaRepository.class)));
   private OrderEntity order() {
     var order = new OrderEntity(OrderStatus.READY, "customer", "01012345678", "Private address", "City area", 100, 18, 118, Instant.now());
     when(repository.lockById(1L)).thenReturn(Optional.of(order));

@@ -6,6 +6,25 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class RestaurantPhotoTest {
+  @Test void deletingCategoryKeepsDishesAndOtherCategories() {
+    var repository = mock(RestaurantRepository.class);
+    var service = new RestaurantService(repository, mock(MenuItemRepository.class));
+    var entity = new RestaurantEntity("r", "Kitchen", "food", "New", "30 min", 0, "restaurant");
+    when(repository.findById("r")).thenReturn(Optional.of(entity));
+    service.addMenuCategory("r", "Pizza & Pasta");
+    service.addMenuCategory("r", "Drinks");
+    service.addMenuItem("r", new SaveMenuItemRequest("Dish", "Description", 50, null, "Pizza & Pasta"));
+    service.addMenuItem("r", new SaveMenuItemRequest("Tea", "Description", 20, null, "Drinks"));
+
+    service.deleteMenuCategory("r", "Pizza & Pasta");
+    service.deleteMenuCategory("r", "Pizza & Pasta");
+
+    assertEquals(java.util.List.of("Drinks"), entity.getDetails().menuCategories);
+    assertEquals(2, entity.getMenu().size());
+    assertNull(entity.getMenu().get(0).getCategory());
+    assertEquals("Drinks", entity.getMenu().get(1).getCategory());
+  }
+
   @Test void categoriesCanBeCreatedBeforeItemsAndItemsCanRemainUncategorised() {
     var repository = mock(RestaurantRepository.class);
     var menu = mock(MenuItemRepository.class);

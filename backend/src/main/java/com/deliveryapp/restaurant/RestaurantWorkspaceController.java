@@ -17,6 +17,12 @@ public class RestaurantWorkspaceController {
     return restaurants.addMenuCategory(restaurantId, request.name());
   }
 
+  @DeleteMapping("/{restaurantId}/menu-categories")
+  public Restaurant deleteCategory(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @RequestParam String name) {
+    accounts.requireRestaurant(authenticatedUser, restaurantId);
+    return restaurants.deleteMenuCategory(restaurantId, name);
+  }
+
   @GetMapping
   public List<Restaurant> list(@RequestAttribute AuthenticatedUser authenticatedUser) {
     var account = accounts.requireRole(authenticatedUser, AccountRole.RESTAURANT);

@@ -25,6 +25,12 @@ public class AdminRestaurantController {
     return restaurantService.addMenuCategory(restaurantId, request.name());
   }
 
+  @DeleteMapping("/{restaurantId}/menu-categories")
+  public Restaurant deleteCategory(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @RequestParam String name) {
+    requireAdmin(authenticatedUser);
+    return restaurantService.deleteMenuCategory(restaurantId, name);
+  }
+
   @GetMapping
   public List<Restaurant> findAll(@RequestAttribute AuthenticatedUser authenticatedUser) {
     requireAdmin(authenticatedUser);

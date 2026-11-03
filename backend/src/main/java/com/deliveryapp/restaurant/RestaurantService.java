@@ -139,6 +139,22 @@ public class RestaurantService {
     return toResponse(entity);
   }
 
+  @Transactional
+  public Restaurant deleteMenuCategory(String restaurantId, String name) {
+    RestaurantEntity entity = findEntityById(restaurantId);
+    String category = name.trim();
+    if (category.isEmpty()) throw new IllegalArgumentException("Category name is required");
+    RestaurantDetails details = entity.getDetails();
+    if (details != null && details.menuCategories != null) {
+      details.menuCategories = details.menuCategories.stream()
+        .filter(value -> !category.equals(value.trim())).collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+    }
+    entity.getMenu().stream()
+      .filter(item -> item.getCategory() != null && category.equals(item.getCategory().trim()))
+      .forEach(item -> item.setCategory(null));
+    return toResponse(entity);
+  }
+
   private void updatePhoto(RestaurantEntity entity, String photoUrl) {
     if (photoUrl == null) return;
     RestaurantDetails details = entity.getDetails();

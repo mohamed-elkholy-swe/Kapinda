@@ -6,11 +6,11 @@ import type { Translate } from './Orders';
 export default function MenuCategoryEditor({ t, restaurant, initialCategory, endpoint, onChanged }: {
   t: Translate; restaurant: Restaurant; initialCategory?: string | null; endpoint: string; onChanged: () => Promise<void>;
 }) {
-  const [category, setCategory] = useState(initialCategory || '');
+  const [category, setCategory] = useState(initialCategory?.trim() || '');
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const categories = [...new Set([...(restaurant.details?.menuCategories || []), ...restaurant.menu.map(item => item.category || ''), category].filter(Boolean))];
+  const categories = [...new Set([...(restaurant.details?.menuCategories || []).map(value => value.trim()), ...restaurant.menu.map(item => item.category?.trim() || '')].filter(Boolean))];
   async function addCategory() {
     if (!name.trim()) return;
     setBusy(true); setError('');
@@ -22,7 +22,7 @@ export default function MenuCategoryEditor({ t, restaurant, initialCategory, end
   }
   return <div className="menu-category-editor">
     <label>{t('قسم المنيو (اختياري)', 'Menu category (optional)')}
-      <select name="category" value={category} onChange={e => setCategory(e.target.value)}>
+      <select name="category" value={categories.includes(category) ? category : ''} disabled={busy} onChange={e => setCategory(e.target.value)}>
         <option value="">{t('إضافة مباشرة بدون قسم', 'Add directly without a category')}</option>
         {categories.map(value => <option key={value} value={value}>{value}</option>)}
       </select>

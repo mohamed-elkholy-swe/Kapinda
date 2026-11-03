@@ -36,9 +36,8 @@
 .menu-category-toggle:hover { color: var(--primary, #a44228); }
 .menu-category-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .menu-category-toggle > span:last-child { display: grid; place-items: center; flex: 0 0 2rem; height: 2rem; border: 1px solid currentColor; border-radius: 50%; }
-.menu-line-dish { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.menu-line-photo { display: grid; place-items: center; flex: 0 0 56px; height: 56px; overflow: hidden; border-radius: 8px; background: #eee8d7; }
-.menu-line-photo img { width: 100%; height: 100%; object-fit: cover; }
+.dish-grid.managed-dish-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.managed-dish-grid .dish-footer { flex-wrap: wrap; }
 .delivery-areas-table { width: 100%; max-width: 36rem; border-collapse: collapse; table-layout: fixed; }
 .delivery-areas-table th, .delivery-areas-table td { padding: 4px; text-align: start; border-bottom: 1px solid var(--border); }
 .delivery-areas-table th:nth-child(2) { width: 6rem; }
@@ -49,3 +48,5 @@
 .user-history-dates { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 12px; }
 .user-history-dates label { display: grid; gap: 4px; }
 .user-history > .button-row { align-items: center; margin-block-start: 12px; }
+.menu-category-heading { display: flex; align-items: center; gap: 12px; }
+.menu-category-heading .menu-category-title { flex: 1; min-width: 0; }

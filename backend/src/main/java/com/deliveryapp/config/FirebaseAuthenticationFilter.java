@@ -61,7 +61,10 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
     throws ServletException, IOException {
-    if (!requiresAuthentication(request.getRequestURI())) {
+    boolean guestCheckout = "POST".equals(request.getMethod())
+      && "/api/orders".equals(request.getRequestURI())
+      && request.getHeader("Authorization") == null;
+    if (guestCheckout || !requiresAuthentication(request.getRequestURI())) {
       chain.doFilter(request, response);
       return;
     }

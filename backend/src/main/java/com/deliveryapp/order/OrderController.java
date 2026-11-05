@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import com.deliveryapp.account.AccountRole;
 import com.deliveryapp.account.AccountService;
 import com.deliveryapp.account.AuthenticatedUser;
 
@@ -27,9 +26,9 @@ public class OrderController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public OrderResponse create(@RequestAttribute AuthenticatedUser authenticatedUser, @Valid @RequestBody CreateOrderRequest request) {
-    accountService.requireActive(authenticatedUser);
-    return orderService.create(authenticatedUser.uid(), request);
+  public OrderResponse create(@RequestAttribute(required = false) AuthenticatedUser authenticatedUser, @Valid @RequestBody CreateOrderRequest request) {
+    if (authenticatedUser != null) accountService.requireActive(authenticatedUser);
+    return orderService.create(authenticatedUser == null ? null : authenticatedUser.uid(), request);
   }
 
   @GetMapping("/{id}")

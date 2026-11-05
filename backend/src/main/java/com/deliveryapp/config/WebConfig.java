@@ -15,7 +15,7 @@ import org.springframework.web.filter.CorsFilter;
 public class WebConfig {
   @Bean
   public FilterRegistrationBean<CorsFilter> apiCorsFilter(
-    @Value("${delivery.allowed-origins:http://localhost:5173,http://127.0.0.1:5173,https://kapinda-6x3.pages.dev}") String allowedOrigins
+    @Value("${delivery.allowed-origins:http://localhost:5173,http://127.0.0.1:5173,https://kapinda-6x3.pages.dev,https://kapinda.us}") String allowedOrigins
   ) {
     var config = new CorsConfiguration();
     config.setAllowedOrigins(Arrays.stream(allowedOrigins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList());

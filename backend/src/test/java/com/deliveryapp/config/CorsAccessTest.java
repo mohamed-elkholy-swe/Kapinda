@@ -3,6 +3,8 @@ package com.deliveryapp.config;
 import static org.junit.jupiter.api.Assertions.*;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.core.Ordered;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -10,17 +12,19 @@ import org.springframework.mock.web.MockHttpServletResponse;
 class CorsAccessTest {
   private static final String ORIGIN = "https://kapinda-6x3.pages.dev";
 
-  @Test void preflightSucceedsBeforeAuthenticationWithoutToken() throws Exception {
-    var registration = new WebConfig().apiCorsFilter(ORIGIN);
+  @ParameterizedTest
+  @ValueSource(strings = {ORIGIN, "https://kapinda.us"})
+  void preflightSucceedsBeforeAuthenticationWithoutToken(String origin) throws Exception {
+    var registration = new WebConfig().apiCorsFilter(ORIGIN + ",https://kapinda.us");
     assertEquals(Ordered.HIGHEST_PRECEDENCE, registration.getOrder());
     var request = new MockHttpServletRequest("OPTIONS", "/api/account/me");
-    request.addHeader("Origin", ORIGIN);
+    request.addHeader("Origin", origin);
     request.addHeader("Access-Control-Request-Method", "GET");
     request.addHeader("Access-Control-Request-Headers", "authorization");
     var response = new MockHttpServletResponse();
     registration.getFilter().doFilter(request, response, (req, res) -> fail("Preflight must finish before authentication"));
     assertEquals(200, response.getStatus());
-    assertEquals(ORIGIN, response.getHeader("Access-Control-Allow-Origin"));
+    assertEquals(origin, response.getHeader("Access-Control-Allow-Origin"));
     assertTrue(response.getHeader("Access-Control-Allow-Headers").toLowerCase().contains("authorization"));
   }
 

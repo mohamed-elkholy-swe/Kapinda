@@ -934,3 +934,13 @@ input[readonly]{background:#f6f7f2;color:#7b8379}.success-note{padding:12px 18px
 
 .dish-art{overflow:hidden;position:relative}.dish-art .restaurant-photo{width:100%;height:100%;object-fit:cover;display:block}
 .menu-category-title{margin:24px 0 16px}
+
+.bulk-menu-editor { margin-block: 1rem; }
+.bulk-menu-editor summary { cursor: pointer; font-weight: 700; }
+.bulk-menu-editor fieldset { border: 0; padding: 0; min-width: 0; }
+.bulk-menu-editor label { display: grid; gap: .5rem; }
+.bulk-menu-editor textarea { min-height: 90px; width: 100%; }
+.bulk-menu-scroll { overflow-x: auto; margin-block: 1rem; }
+.bulk-menu-editor table { width: 100%; border-collapse: collapse; }
+.bulk-menu-editor th, .bulk-menu-editor td { padding: .4rem; text-align: start; }
+.bulk-menu-editor td input { min-width: 140px; width: 100%; }

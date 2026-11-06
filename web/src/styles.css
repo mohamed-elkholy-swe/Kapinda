@@ -944,3 +944,7 @@ input[readonly]{background:#f6f7f2;color:#7b8379}.success-note{padding:12px 18px
 .bulk-menu-editor table { width: 100%; border-collapse: collapse; }
 .bulk-menu-editor th, .bulk-menu-editor td { padding: .4rem; text-align: start; }
 .bulk-menu-editor td input { min-width: 140px; width: 100%; }
+
+.login-modal .password-field { position: relative; display: flex; align-items: center; }
+.login-modal .password-field input { width: 100%; min-width: 0; padding-inline-end: 80px; }
+.login-modal .password-toggle { position: absolute; inset-inline-end: 6px; padding: 6px 10px; background: transparent; border: 0; color: var(--green); font: inherit; font-size: 13px; }

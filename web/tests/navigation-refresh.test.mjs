@@ -49,3 +49,45 @@ test('automatic refresh pauses in background and avoids overlapping requests', a
   release(); await Promise.resolve(); timer(); assert.equal(calls, 2);
   release(); await Promise.resolve(); cleanup(); timer(); assert.equal(calls, 2);
 });
+
+test('cleans stale links and keeps only the active screen parameters', async () => {
+  const cleanups = [];
+  globalThis.window = new EventTarget();
+  globalThis.location = new URL('http://localhost/#admin=menu&menuRestaurant=old&restaurant=kitchen&page=restaurant');
+  const entries = [location.href];
+  let replacements = 0;
+  globalThis.history = {
+    pushState(_state, _title, url) { location = new URL(url); entries.push(location.href); },
+    replaceState(_state, _title, url) { location = new URL(url); entries[entries.length - 1] = location.href; replacements++; }
+  };
+  const useHistoryState = await hook('useHistoryState', {
+    useEffect(fn) { cleanups.push(fn()); },
+    useState(initial) { return [initial(), () => {}]; }
+  });
+  const [, navigate] = useHistoryState('page', 'browse');
+  const [, select] = useHistoryState('restaurant', '');
+  const [, section] = useHistoryState('admin', 'overview');
+  const [, menu] = useHistoryState('menuRestaurant', '');
+  assert.equal(location.hash, '#restaurant=kitchen&page=restaurant');
+  assert.equal(replacements, 1);
+  assert.equal(entries.length, 1);
+  // Page-first and parameter-first updates must both survive batching.
+  navigate('admin'); section('menu'); menu('grill');
+  await Promise.resolve();
+  assert.equal(location.hash, '#page=admin&admin=menu&menuRestaurant=grill');
+  section('orders');
+  await Promise.resolve();
+  assert.equal(location.hash, '#page=admin&admin=orders');
+  select('kitchen'); navigate('restaurant');
+  await Promise.resolve();
+  assert.equal(location.hash, '#page=restaurant&restaurant=kitchen');
+  navigate('cart');
+  await Promise.resolve();
+  assert.equal(location.hash, '#page=cart');
+  location = new URL(entries[3]); window.dispatchEvent(new Event('popstate'));
+  assert.equal(location.hash, '#page=restaurant&restaurant=kitchen');
+  navigate('browse');
+  await Promise.resolve();
+  assert.equal(location.hash, '');
+  cleanups.forEach(fn => fn());
+});

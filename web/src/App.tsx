@@ -3,6 +3,7 @@ import HomeBrowse from './HomeBrowse';
 import Icon from './Icon';
 import RestaurantOrders from './RestaurantOrders';
 import NotificationBell from './NotificationBell';
+import { disablePush, enablePush, pushEnabled, pushSupported } from './push';
 import useHistoryState from './useHistoryState';
 import useAutoRefresh from './useAutoRefresh';
 import RestaurantImage from './RestaurantImage';
@@ -39,14 +40,27 @@ export default function App() {
   const setSelected = (restaurant: Restaurant | null) => setRestaurantId(restaurant?.id || '');
   const [cart, setCart] = useState<Line[]>([]);
   const [guestOrder, setGuestOrder] = useState<Order | null>(null);
-  const [view, setView] = useHistoryState<'browse' | 'cart' | 'track' | 'admin' | 'profile' | 'orders' | 'restaurant' | 'delivery' | 'workspace' | 'restaurantOrders'>('page', 'browse');
+  const [view, setView] = useHistoryState<'browse' | 'cart' | 'track' | 'admin' | 'profile' | 'orders' | 'restaurant' | 'delivery' | 'workspace' | 'restaurantOrders' | 'notifications'>('page', 'browse');
   useEffect(()=>{window.scrollTo(0,0);},[view]);
+
   const [login, setLogin] = useState(false);
   const [register, setRegister] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   useEffect(() => { setShowPassword(false); }, [login, register]);
   const [user, setUser] = useState<User | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
+  useEffect(() => {
+    if (view !== 'notifications' || !account) return;
+    if (isAdministrator(account.role)) setAdminSection('orders');
+    setView(isAdministrator(account.role) ? 'admin' : account.role === 'RESTAURANT' ? 'restaurantOrders' : account.role === 'DELIVERY' ? 'delivery' : 'orders');
+  }, [view, account]);
+  useEffect(() => {
+    if (!user || !account) return;
+    const uid = user.uid;
+    const refresh = async () => { try { if (await pushSupported() && pushEnabled(uid)) await enablePush(uid, false); } catch { /* The notification panel offers a retry. */ } };
+    void refresh(); window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, [user?.uid, account?.uid]);
   const [accountError, setAccountError] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -199,7 +213,7 @@ export default function App() {
       {view === 'restaurant' && selected && <RestaurantPage restaurant={selected} cart={cart} t={t} money={money} onBack={() => { setSelected(null); setView('browse'); }} onAdd={item => add(selected, item)} onQuantity={(itemId, delta) => setCart(current => current.flatMap(line => line.restaurantId === selected.id && line.menuItemId === itemId ? line.quantity + delta > 0 ? [{ ...line, quantity: line.quantity + delta }] : [] : [line]))}/>}
       {view === 'delivery' && user && canUseDelivery(account?.role) && <Delivery supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money}/>}
       {view === 'workspace' && user && canManageRestaurants(account?.role) && <RestaurantWorkspace supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money} onChanged={() => void loadRestaurants()}/>}
-      {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await signOut(auth!); })}/>}
+      {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await disablePush(); await signOut(auth!); })}/>}
       {view === 'restaurantOrders' && user && canManageRestaurants(account?.role) && <RestaurantOrders key={user.uid+(account?.restaurantIds||[]).join(',')} t={t} money={money}/>}
       {(view === 'orders' || view === 'track') && user && account && <Orders accountUid={user.uid} key={user.uid} t={t} money={money} onBrowse={() => setView('browse')} onOpen={() => setView('orders')}/>}
       {view === 'admin' && account && isAdministrator(account.role) && <Admin key={user?.uid} t={t} money={money} actorUid={user?.uid} actorRole={account.role} onChange={() => void loadRestaurants()}/>}

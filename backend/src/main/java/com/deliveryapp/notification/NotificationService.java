@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NotificationService {
+  private PushService push;
+  @org.springframework.beans.factory.annotation.Autowired
+  public void setPush(PushService push) {this.push=push;}
   private final AccountService accounts;
   private final OrderRepository orders;
   private final NotificationRepository notifications;
@@ -53,7 +56,9 @@ public class NotificationService {
   @Transactional
   public void record(OrderEntity order) {
     for(var account:accountRepository.findAll()) if(eligible(account,order,order.getStatus().name())) {
-      notifications.insertOnce(account.getUid()+":"+order.getId()+":"+order.getStatus().name(),account.getUid(),order.getId(),order.getStatus().name());
+      String id=account.getUid()+":"+order.getId()+":"+order.getStatus().name();
+      int inserted=notifications.insertOnce(id,account.getUid(),order.getId(),order.getStatus().name());
+      if(inserted>0 && push!=null) push.enqueue(id,account.getUid(),order.getId(),order.getStatus().name());
     }
   }
 

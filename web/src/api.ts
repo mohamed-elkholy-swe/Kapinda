@@ -3,7 +3,8 @@ import { getAuth } from 'firebase/auth';
 import { diagnostic, errorCode } from './diagnostics';
 const env = import.meta.env;
 const config = { apiKey: env.VITE_FIREBASE_API_KEY, authDomain: env.VITE_FIREBASE_AUTH_DOMAIN, projectId: env.VITE_FIREBASE_PROJECT_ID, appId: env.VITE_FIREBASE_APP_ID };
-export const auth = Object.values(config).every(Boolean) ? getAuth(getApps()[0] ?? initializeApp(config)) : null;
+export const firebaseApp = Object.values(config).every(Boolean) ? getApps()[0] ?? initializeApp({ ...config, messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID }) : null;
+export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 diagnostic(auth ? 'auth.config.ready' : 'auth.config.missing');
 export async function api<T>(path: string, init: RequestInit = {}, protectedRequest = false): Promise<T> {
   const started = performance.now();

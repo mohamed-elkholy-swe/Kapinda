@@ -30,6 +30,6 @@ public class AdminOrderController {
     @RequestParam OrderStatus status
   ) {
     accountService.requireRole(authenticatedUser, AccountRole.ADMIN);
-    return orderService.updateStatus(id, status);
+    return orderService.updateStatus(id, status, authenticatedUser.uid());
   }
 }

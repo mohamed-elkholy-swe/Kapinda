@@ -34,6 +34,6 @@ public class RestaurantOrdersController {
       ||(order.getStatus()==OrderStatus.ACCEPTED && status==OrderStatus.PREPARING)
       ||(order.getStatus()==OrderStatus.PREPARING && status==OrderStatus.READY);
     if(!allowed) throw new IllegalArgumentException("Restaurant orders must move from placed to accepted to preparing to ready.");
-    orders.updateStatus(String.valueOf(id),status);
+    orders.updateStatus(String.valueOf(id),status,authenticatedUser.uid());
   }
 }

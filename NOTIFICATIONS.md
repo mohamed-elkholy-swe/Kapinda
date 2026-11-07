@@ -24,6 +24,8 @@ Restart the backend to create `push_device` and `push_job` tables using the exis
 
 ## Delivery behavior
 
+The authenticated account that creates or changes an order is excluded from both in-app notification history and push delivery for that action, across all its devices. Other eligible recipients still receive updates. Customer-created orders notify eligible staff; guest orders have no signed-in actor to exclude. Repeating the current order status does not create an event. Previously saved notifications remain unchanged.
+
 Order changes create delivery jobs in the same database transaction as notification history. Only new notification records enqueue push messages. The scheduled worker sees committed jobs, checks current role/order access and device ownership, and retries failures with exponential backoff up to eight attempts. Expired tokens are removed. Superseded order statuses and device registrations older than 60 days are skipped. Enabled devices refresh registration when Kapinda loads or regains focus.
 
 Jobs use database row locks to prevent simultaneous workers claiming the same job. Delivery is at least once: a server crash after Firebase accepts a message but before the database commit can cause a retry. The stable notification tag helps replace repeated alerts. This is an installable online web app; offline browsing is not implemented.

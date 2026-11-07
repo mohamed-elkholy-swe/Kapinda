@@ -14,7 +14,7 @@ public class OrderService {
   private com.deliveryapp.notification.NotificationService notifications;
   @org.springframework.beans.factory.annotation.Autowired
   public void setNotifications(com.deliveryapp.notification.NotificationService notifications) { this.notifications=notifications; }
-  private void notifyOrder(OrderEntity order) { if(notifications!=null) notifications.record(order); }
+  private void notifyOrder(OrderEntity order, String actorUid) { if(notifications!=null) notifications.record(order, actorUid); }
 
   private final RestaurantService restaurantService;
   private final OrderRepository orderRepository;
@@ -66,7 +66,7 @@ public class OrderService {
 
     orderItems.forEach(order::addItem);
     OrderEntity saved=orderRepository.save(order);
-    notifyOrder(saved);
+    notifyOrder(saved, customerUid);
     return toResponse(saved);
   }
 
@@ -95,10 +95,11 @@ public class OrderService {
   }
 
   @Transactional
-  public OrderResponse updateStatus(String id, OrderStatus status) {
+  public OrderResponse updateStatus(String id, OrderStatus status, String actorUid) {
     OrderEntity order = orderRepository.findById(parseId(id)).orElseThrow(() -> new OrderNotFoundException(id));
+    if (order.getStatus() == status) return toResponse(order);
     order.setStatus(status);
-    notifyOrder(order);
+    notifyOrder(order, actorUid);
     return toResponse(order);
   }
 

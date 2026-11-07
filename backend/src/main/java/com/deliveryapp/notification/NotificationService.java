@@ -54,8 +54,9 @@ public class NotificationService {
   }
 
   @Transactional
-  public void record(OrderEntity order) {
-    for(var account:accountRepository.findAll()) if(eligible(account,order,order.getStatus().name())) {
+  public void record(OrderEntity order, String actorUid) {
+    // Exclude the acting account across all its devices and from notification history.
+    for(var account:accountRepository.findAll()) if(!account.getUid().equals(actorUid) && eligible(account,order,order.getStatus().name())) {
       String id=account.getUid()+":"+order.getId()+":"+order.getStatus().name();
       int inserted=notifications.insertOnce(id,account.getUid(),order.getId(),order.getStatus().name());
       if(inserted>0 && push!=null) push.enqueue(id,account.getUid(),order.getId(),order.getStatus().name());

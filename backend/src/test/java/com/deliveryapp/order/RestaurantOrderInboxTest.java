@@ -27,10 +27,10 @@ class RestaurantOrderInboxTest {
   var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);var service=mock(OrderService.class);var controller=new RestaurantOrdersController(accounts,repository,service);
   var user=new AuthenticatedUser("staff","staff@example.test");var account=new AccountEntity("staff","staff@example.test",AccountRole.RESTAURANT,AccountStatus.ACTIVE);account.assignAccess(AccountRole.RESTAURANT,Set.of("mine"));when(accounts.requireRole(user,AccountRole.RESTAURANT)).thenReturn(account);
   var order=new OrderEntity(OrderStatus.PLACED,"buyer","phone","address","City",50,18,68,Instant.now());order.addItem(new OrderItemEntity("mine","Kitchen","dish","Dish",1,50,50));when(repository.lockById(1L)).thenReturn(Optional.of(order));
-  controller.updateStatus(user,1L,OrderStatus.ACCEPTED);verify(service).updateStatus("1",OrderStatus.ACCEPTED);
+  controller.updateStatus(user,1L,OrderStatus.ACCEPTED);verify(service).updateStatus("1",OrderStatus.ACCEPTED,user.uid());
   assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.READY));
-  order.setStatus(OrderStatus.ACCEPTED);controller.updateStatus(user,1L,OrderStatus.PREPARING);verify(service).updateStatus("1",OrderStatus.PREPARING);
-  order.setStatus(OrderStatus.PREPARING);controller.updateStatus(user,1L,OrderStatus.READY);verify(service).updateStatus("1",OrderStatus.READY);
+  order.setStatus(OrderStatus.ACCEPTED);controller.updateStatus(user,1L,OrderStatus.PREPARING);verify(service).updateStatus("1",OrderStatus.PREPARING,user.uid());
+  order.setStatus(OrderStatus.PREPARING);controller.updateStatus(user,1L,OrderStatus.READY);verify(service).updateStatus("1",OrderStatus.READY,user.uid());
   assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.DELIVERED));
   order.addItem(new OrderItemEntity("other","Other","other","Other",1,50,50));assertThrows(SecurityException.class,()->controller.updateStatus(user,1L,OrderStatus.READY));
   account.assignAccess(AccountRole.RESTAURANT,Set.of());assertThrows(SecurityException.class,()->controller.updateStatus(user,1L,OrderStatus.READY));

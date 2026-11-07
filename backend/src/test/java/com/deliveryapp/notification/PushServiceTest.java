@@ -57,8 +57,8 @@ class PushServiceTest {
     var push=mock(PushService.class);notificationService.setPush(push);
     when(accountRepository.findAll()).thenReturn(List.of(new AccountEntity("buyer","b@example.test",AccountRole.CUSTOMER,AccountStatus.ACTIVE)));
     var order=new OrderEntity(OrderStatus.READY,"buyer","phone","address","City",50,18,68,Instant.now());
-    notificationService.record(order);verifyNoInteractions(push);
+    notificationService.record(order,null);verifyNoInteractions(push);
     when(notifications.insertOnce(anyString(),anyString(),any(),anyString())).thenReturn(1);
-    notificationService.record(order);verify(push).enqueue(anyString(),eq("buyer"),any(),eq("READY"));
+    notificationService.record(order,null);verify(push).enqueue(anyString(),eq("buyer"),any(),eq("READY"));
   }
 }

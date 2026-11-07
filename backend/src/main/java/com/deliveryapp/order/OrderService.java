@@ -38,6 +38,10 @@ public class OrderService {
     for (CreateOrderItemRequest requestItem : request.items()) {
       RestaurantEntity restaurant = restaurantService.findEntityById(requestItem.restaurantId());
       MenuItemEntity menuItem = restaurantService.findMenuItemEntity(requestItem.restaurantId(), requestItem.menuItemId());
+      if (!restaurant.isActive() || !menuItem.isActive()) {
+        throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,
+          "This restaurant or item is currently inactive. Please update your basket.");
+      }
       int lineTotal = menuItem.getPrice() * requestItem.quantity();
 
       orderItems.add(new OrderItemEntity(

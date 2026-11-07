@@ -11,6 +11,11 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "menu_items")
 public class MenuItemEntity {
+  // Existing database rows remain active when this column is added.
+  private Boolean active = true;
+  public boolean isActive() { return !Boolean.FALSE.equals(active); }
+  public void setActive(boolean active) { this.active = active; }
+
   @Id
   private String id;
 

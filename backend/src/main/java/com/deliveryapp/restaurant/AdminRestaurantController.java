@@ -19,6 +19,18 @@ public class AdminRestaurantController {
     this.accountService = accountService;
   }
 
+  @PutMapping("/{restaurantId}/active")
+  public Restaurant setActive(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @Valid @RequestBody SetActiveRequest request) {
+    requireAdmin(authenticatedUser);
+    return restaurantService.setActive(restaurantId, request.active());
+  }
+
+  @PutMapping("/{restaurantId}/menu/{itemId}/active")
+  public MenuItem setMenuItemActive(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @PathVariable String itemId, @Valid @RequestBody SetActiveRequest request) {
+    requireAdmin(authenticatedUser);
+    return restaurantService.setMenuItemActive(restaurantId, itemId, request.active());
+  }
+
   @PostMapping("/{restaurantId}/menu-categories")
   public Restaurant addCategory(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @Valid @RequestBody SaveMenuCategoryRequest request) {
     requireAdmin(authenticatedUser);

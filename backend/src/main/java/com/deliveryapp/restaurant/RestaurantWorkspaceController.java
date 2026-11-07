@@ -11,6 +11,18 @@ public class RestaurantWorkspaceController {
   private final AccountService accounts;
   private final RestaurantService restaurants;
   public RestaurantWorkspaceController(AccountService accounts, RestaurantService restaurants) { this.accounts = accounts; this.restaurants = restaurants; }
+  @PutMapping("/{restaurantId}/active")
+  public Restaurant setActive(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @Valid @RequestBody SetActiveRequest request) {
+    accounts.requireRestaurant(authenticatedUser, restaurantId);
+    return restaurants.setActive(restaurantId, request.active());
+  }
+
+  @PutMapping("/{restaurantId}/menu/{itemId}/active")
+  public MenuItem setMenuItemActive(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @PathVariable String itemId, @Valid @RequestBody SetActiveRequest request) {
+    accounts.requireRestaurant(authenticatedUser, restaurantId);
+    return restaurants.setMenuItemActive(restaurantId, itemId, request.active());
+  }
+
   @PostMapping("/{restaurantId}/menu-categories")
   public Restaurant addCategory(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @Valid @RequestBody SaveMenuCategoryRequest request) {
     accounts.requireRestaurant(authenticatedUser, restaurantId);

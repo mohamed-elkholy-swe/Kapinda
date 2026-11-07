@@ -86,7 +86,7 @@ public class RestaurantService {
     if (request.photoUrl() != null) item.setPhotoUrl(request.photoUrl().trim());
     if (request.category() != null) item.setCategory(request.category().trim());
     restaurant.addMenuItem(item);
-    return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory());
+    return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory(), item.isActive());
   }
 
   @Transactional
@@ -96,7 +96,7 @@ public class RestaurantService {
     item.update(request.name().trim(), (request.description() == null ? "" : request.description().trim()), request.price());
     if (request.photoUrl() != null) item.setPhotoUrl(request.photoUrl().trim());
     if (request.category() != null) item.setCategory(request.category().trim());
-    return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory());
+    return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory(), item.isActive());
   }
 
   @Transactional
@@ -111,19 +111,57 @@ public class RestaurantService {
     restaurantRepository.delete(findEntityById(restaurantId));
   }
 
+  @Transactional
+  public Restaurant setActive(String restaurantId, boolean active) {
+    RestaurantEntity entity = findEntityById(restaurantId);
+    entity.setActive(active);
+    return toResponse(entity);
+  }
+
+  @Transactional
+  public MenuItem setMenuItemActive(String restaurantId, String itemId, boolean active) {
+    MenuItemEntity item = findMenuItemEntity(restaurantId, itemId);
+    item.setActive(active);
+    return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory(), item.isActive());
+  }
+
+  @Transactional(readOnly = true)
+  public List<Restaurant> findPublic(String category, String search) {
+    String query = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+    return findAll(category, null).stream().filter(Restaurant::active)
+      .map(this::publicResponse)
+      .filter(r -> query.isBlank() || r.name().toLowerCase(Locale.ROOT).contains(query)
+        || r.menu().stream().anyMatch(i -> i.name().toLowerCase(Locale.ROOT).contains(query)))
+      .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public Restaurant findPublicById(String id) {
+    Restaurant restaurant = findById(id);
+    if (!restaurant.active()) throw new RestaurantNotFoundException(id);
+    return publicResponse(restaurant);
+  }
+
+  private Restaurant publicResponse(Restaurant r) {
+    return new Restaurant(r.id(), r.name(), r.category(), r.rating(), r.deliveryTime(), r.minimumOrder(), r.art(),
+      r.menu().stream().filter(MenuItem::active).toList(), r.details(), r.active(), r.ratingCount());
+  }
+
   private Restaurant toResponse(RestaurantEntity entity) {
     return new Restaurant(
       entity.getId(),
       entity.getName(),
       entity.getCategory(),
-      entity.getRating(),
+      entity.getRatingCount() == 0 ? "New" : entity.getRating(),
       entity.getDeliveryTime(),
       entity.getMinimumOrder(),
       entity.getArt(),
       entity.getMenu().stream()
-        .map(item -> new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory()))
+        .map(item -> new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory(), item.isActive()))
         .toList(),
-      entity.getDetails()
+      entity.getDetails(),
+      entity.isActive(),
+      entity.getRatingCount()
     );
   }
 

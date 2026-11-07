@@ -21,11 +21,11 @@ public class RestaurantController {
     @RequestParam(required = false) String category,
     @RequestParam(required = false) String search
   ) {
-    return restaurantService.findAll(category, search);
+    return restaurantService.findPublic(category, search);
   }
 
   @GetMapping("/{id}")
   public Restaurant findById(@PathVariable String id) {
-    return restaurantService.findById(id);
+    return restaurantService.findPublicById(id);
   }
 }

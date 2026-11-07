@@ -15,6 +15,11 @@ import java.util.List;
 @Entity
 @Table(name = "restaurants")
 public class RestaurantEntity {
+  // Existing database rows remain active when this column is added.
+  private Boolean active = true;
+  public boolean isActive() { return !Boolean.FALSE.equals(active); }
+  public void setActive(boolean active) { this.active = active; }
+
   @Id
   private String id;
 
@@ -26,6 +31,16 @@ public class RestaurantEntity {
 
   @Column(nullable = false)
   private String rating;
+
+  private Long ratingCount;
+  public long getRatingCount() { return ratingCount == null ? 0 : ratingCount; }
+  public void updateCustomerRating(double average, long count) {
+    rating = String.format(java.util.Locale.ROOT, "%.1f", average);
+    ratingCount = count;
+  }
+
+  @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE)
+  private List<RestaurantRatingEntity> ratings = new ArrayList<>();
 
   @Column(name = "delivery_time", nullable = false)
   private String deliveryTime;

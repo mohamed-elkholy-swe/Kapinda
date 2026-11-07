@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { auth } from './api';
 import { disablePush, enablePush, pushEnabled, pushSupported } from './push';
 import type { Translate } from './Orders';
+import { pushChangeEvent } from './pushPreference';
 
 export default function PushSettings({ t }: { t: Translate }) {
   const uid = auth?.currentUser?.uid || '';
@@ -22,7 +23,9 @@ export default function PushSettings({ t }: { t: Translate }) {
     };
     void refresh();
     window.addEventListener('focus', refresh);
-    return () => { alive = false; window.removeEventListener('focus', refresh); };
+    const sync = () => { setEnabled(pushEnabled(uid)); };
+    window.addEventListener(pushChangeEvent, sync);
+    return () => { alive = false; window.removeEventListener('focus', refresh); window.removeEventListener(pushChangeEvent, sync); };
   }, [uid]);
   async function toggle() {
     setBusy(true); setError('');

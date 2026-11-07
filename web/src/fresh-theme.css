@@ -88,3 +88,7 @@
 .product-form-dialog .form { padding: 16px 0 0; }
 .product-form-dialog .form h2 { padding-inline-end: 24px; }
 @media(max-width:600px) { .menu-management-layout > .panel { padding: 18px; } .product-form-dialog { padding: 24px 20px; } }
+
+.push-prompt{position:fixed;inset-inline-end:24px;bottom:24px;z-index:190;width:min(420px,calc(100vw - 32px));padding:22px;box-shadow:0 12px 45px #15263a30;border:1px solid #f2dccb}
+.push-prompt h2{font-size:21px;margin:0 0 10px}.push-prompt p{font-size:14px;line-height:1.7;margin:0 0 16px}.push-prompt-actions{display:flex;flex-wrap:wrap;gap:10px}.push-prompt-actions button{min-height:44px}
+@media(max-width:600px){.push-prompt{inset-inline:16px;bottom:calc(90px + env(safe-area-inset-bottom));max-height:65vh;overflow:auto}}

@@ -7,7 +7,7 @@ self.addEventListener('push', event => {
   const data = payload?.data || payload?.notification;
   if (!data?.title || !data?.body) return;
   event.waitUntil(self.registration.showNotification(data.title, {
-    body: data.body, icon: '/icons/icon-192.png', badge: '/icons/icon-192.png',
+    body: data.body, icon: '/icons/kapinda-192.png', badge: '/icons/kapinda-badge-96.png',
     tag: data.tag || 'kapinda-order', data: { url: '/#page=notifications' },
   }));
 });

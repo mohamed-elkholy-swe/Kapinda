@@ -3,6 +3,8 @@ import HomeBrowse from './HomeBrowse';
 import Icon from './Icon';
 import RestaurantOrders from './RestaurantOrders';
 import NotificationBell from './NotificationBell';
+import PushPrompt from './PushPrompt';
+import { pushPreference } from './pushPreference';
 import { disablePush, enablePush, pushEnabled, pushSupported } from './push';
 import useHistoryState from './useHistoryState';
 import useAutoRefresh from './useAutoRefresh';
@@ -57,7 +59,7 @@ export default function App() {
   useEffect(() => {
     if (!user || !account) return;
     const uid = user.uid;
-    const refresh = async () => { try { if (await pushSupported() && pushEnabled(uid)) await enablePush(uid, false); } catch { /* The notification panel offers a retry. */ } };
+    const refresh = async () => { try { if (await pushSupported() && (pushEnabled(uid) || (pushPreference(uid) === 'enabled' && Notification.permission === 'granted'))) await enablePush(uid, false); } catch { /* The notification panel offers a retry. */ } };
     void refresh(); window.addEventListener('focus', refresh);
     return () => window.removeEventListener('focus', refresh);
   }, [user?.uid, account?.uid]);
@@ -197,6 +199,7 @@ export default function App() {
   }
   const visible = restaurants.filter(r => (!category || r.category === category) && `${r.name} ${r.category} ${r.menu.map(m => m.name).join(' ')}`.toLowerCase().includes(search.toLowerCase()));
   return <>
+    {user && account?.status === 'ACTIVE' && !login && <PushPrompt key={user.uid} uid={user.uid} t={t}/>}
     <LaunchCountdown t={t}/>
     <div className="topline">{t('من مطاعم مدينتك، لحد باب بيتك', 'From your local favourites, straight to your door')} <span>القناطر الخيرية · Al Qanater El Khayria</span></div>
     <header className="header"><button className="brand" onClick={() => { setView('browse'); setSelected(null); }}><BrandMark/><span>{t('كابيندا', 'Kapinda')}<small>{t('طازة ومحلي', 'FRESH & LOCAL')}</small></span></button>
@@ -213,7 +216,7 @@ export default function App() {
       {view === 'restaurant' && selected && <RestaurantPage restaurant={selected} cart={cart} t={t} money={money} onBack={() => { setSelected(null); setView('browse'); }} onAdd={item => add(selected, item)} onQuantity={(itemId, delta) => setCart(current => current.flatMap(line => line.restaurantId === selected.id && line.menuItemId === itemId ? line.quantity + delta > 0 ? [{ ...line, quantity: line.quantity + delta }] : [] : [line]))}/>}
       {view === 'delivery' && user && canUseDelivery(account?.role) && <Delivery supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money}/>}
       {view === 'workspace' && user && canManageRestaurants(account?.role) && <RestaurantWorkspace supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money} onChanged={() => void loadRestaurants()}/>}
-      {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await disablePush(); await signOut(auth!); })}/>}
+      {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await disablePush(false); await signOut(auth!); })}/>}
       {view === 'restaurantOrders' && user && canManageRestaurants(account?.role) && <RestaurantOrders key={user.uid+(account?.restaurantIds||[]).join(',')} t={t} money={money}/>}
       {(view === 'orders' || view === 'track') && user && account && <Orders accountUid={user.uid} key={user.uid} t={t} money={money} onBrowse={() => setView('browse')} onOpen={() => setView('orders')}/>}
       {view === 'admin' && account && isAdministrator(account.role) && <Admin key={user?.uid} t={t} money={money} actorUid={user?.uid} actorRole={account.role} onChange={() => void loadRestaurants()}/>}

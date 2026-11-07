@@ -15,7 +15,7 @@ Restart the backend to create `push_device` and `push_job` tables using the exis
 
 ## User setup and testing
 
-1. Sign in, open the notification bell, and select **Enable notifications on this device**. Accept the browser prompt.
+1. After signing in on a supported browser, an automatic offer appears with **Enable notifications** and **Not now**. Enabling opens the browser's permission request. **Not now** is remembered per account on this browser, so the offer does not repeat. The notification bell retains its enable/disable control. A previously accepted choice reconnects notifications on later sign-ins; explicitly disabling from the bell prevents reconnection. If the browser permission is blocked, unblock it in browser settings before enabling from the bell.
 2. On iPhone/iPad (16.4+), first add the site to the Home Screen and open its icon. A regular browser tab is insufficient.
 3. Close Kapinda's tab/app. Using a different authorized staff account/device, update that customer's order status. Expect an OS notification, normally after the backend's next 10-second delivery cycle.
 4. Tap the notification. It opens the signed-in account's order workspace (administration, restaurant, delivery, or customer orders). The push text is deliberately generic; order details remain behind authentication.

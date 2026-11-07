@@ -1,4 +1,5 @@
 import { api, auth, firebaseApp } from './api';
+import { pushChangeEvent, rememberPushPreference } from './pushPreference';
 
 const storageKey = 'kapinda.push';
 type Registration = { uid: string; token: string };
@@ -33,14 +34,17 @@ export function enablePush(uid: string, ask = true) {
       await api('/notifications/device', { method: 'DELETE', body: JSON.stringify({ token: previous.token }) }, true);
     await api('/notifications/device', { method: 'PUT', body: JSON.stringify({ token }) }, true);
     localStorage.setItem(storageKey, JSON.stringify({ uid, token }));
+    rememberPushPreference(uid, 'enabled');
   });
 }
-export function disablePush() {
+export function disablePush(remember = true) {
   return serialize(async () => {
     const previous = saved();
     if (previous && auth?.currentUser?.uid === previous.uid)
       await api('/notifications/device', { method: 'DELETE', body: JSON.stringify({ token: previous.token }) }, true);
     localStorage.removeItem(storageKey);
+    if (remember && auth?.currentUser) rememberPushPreference(auth.currentUser.uid, 'dismissed');
+    window.dispatchEvent(new Event(pushChangeEvent));
     if (firebaseApp && await pushSupported()) {
       const { getMessaging, deleteToken } = await import('firebase/messaging');
       await deleteToken(getMessaging(firebaseApp));

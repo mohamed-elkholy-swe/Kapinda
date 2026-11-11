@@ -15,6 +15,16 @@ public class RestaurantRatingEntity {
   @Column(nullable = false)
   private int stars;
 
+  @Column(length = 2000)
+  private String feedback;
+  public String getFeedback() { return feedback; }
+  public void setFeedback(String feedback) { this.feedback = feedback; }
+
+  private java.time.Instant updatedAt;
+  public java.time.Instant getUpdatedAt() { return updatedAt; }
+  @PrePersist @PreUpdate
+  void timestamp() { updatedAt = java.time.Instant.now(); }
+
   protected RestaurantRatingEntity() {}
   public RestaurantRatingEntity(RestaurantEntity restaurant, String customerUid, int stars) {
     this.id = java.util.UUID.randomUUID().toString();

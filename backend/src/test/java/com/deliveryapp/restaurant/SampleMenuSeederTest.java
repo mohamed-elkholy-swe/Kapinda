@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class SampleMenuSeederTest {
-  @Test void addsThreeCategoriesPhotosAndSixSamplesToEveryRestaurantOnce() {
+  @Test void doesNotAddSamplesToAnyRestaurant() {
     var repository = mock(RestaurantRepository.class);
     var restaurants = List.of(
       new RestaurantEntity("pizza", "Pizza", "pizza", "4", "30", 0, "pizza"),
@@ -17,14 +17,14 @@ class SampleMenuSeederTest {
     var seeder = new SampleMenuSeeder(repository);
     seeder.run();
     for (var restaurant : restaurants) {
-      assertEquals(7, restaurant.getMenu().size());
-      assertEquals(3, restaurant.getMenu().stream().map(MenuItemEntity::getCategory).distinct().count());
-      assertTrue(restaurant.getMenu().stream().allMatch(item -> item.getPhotoUrl().startsWith("https://images.unsplash.com/")));
+      assertEquals(1, restaurant.getMenu().size());
+
+
       assertEquals(25, restaurant.getMenu().get(0).getPrice());
     }
     seeder.run();
-    for (var restaurant : restaurants) assertEquals(7, restaurant.getMenu().size());
-    verify(repository, times(4)).save(any());
+    for (var restaurant : restaurants) assertEquals(1, restaurant.getMenu().size());
+    verify(repository, never()).save(any());
   }
   @Test void preservesExistingItemPhotosAndCategories() {
     var repository=mock(RestaurantRepository.class);

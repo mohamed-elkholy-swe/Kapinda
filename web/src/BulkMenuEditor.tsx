@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { api } from './api';
 import type { Translate } from './Orders';
+import type { Restaurant } from './types';
+import MenuCategoryEditor from './MenuCategoryEditor';
+import { menuCategoryDefinitions, resolveMenuCategory } from './menuCategories';
 
 type Row = { name: string; price: string; category: string; description: string; photoUrl: string };
 const emptyRow = (): Row => ({ name: '', price: '', category: '', description: '', photoUrl: '' });
@@ -8,13 +11,14 @@ function priceValue(value: string) {
   return Number(value.trim().replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit))));
 }
 
-export default function BulkMenuEditor({ t, endpoint, onChanged }: {
-  t: Translate; endpoint: string; onChanged: () => Promise<void>;
+export default function BulkMenuEditor({ t, endpoint, onChanged, restaurant }: {
+  t: Translate; endpoint: string; onChanged: () => Promise<void>; restaurant: Restaurant;
 }) {
   const [rows, setRows] = useState<Row[]>([emptyRow()]);
   const [paste, setPaste] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const categories = menuCategoryDefinitions(restaurant);
   function update(index: number, key: keyof Row, value: string) {
     setRows(current => current.map((row, i) => i === index ? { ...row, [key]: value } : row));
     setMessage('');
@@ -30,13 +34,18 @@ export default function BulkMenuEditor({ t, endpoint, onChanged }: {
       const [name = '', price = '', category = '', description = '', photoUrl = ''] = line.split('\t');
       return { name: name.trim(), price: price.trim(), category: category.trim(), description: description.trim(), photoUrl: photoUrl.trim() };
     });
+    if (imported.some(row => resolveMenuCategory(row.category, restaurant) === undefined)) {
+      setMessage(t('أنشئ الأقسام غير الموجودة أولاً، ثم أعد اللصق. يمكنك استخدام الاسم العربي أو الإنجليزي.', 'Create missing categories first, then paste again. Arabic or English category names are accepted.'));
+      return;
+    }
+    imported.forEach(row => { row.category = resolveMenuCategory(row.category, restaurant) || ''; });
     setRows(current => [...current.filter(row => Object.values(row).some(value => value.trim())), ...imported]);
     setPaste(''); setMessage('');
   }
   async function save() {
     if (busy) return;
-    if (!rows.length || rows.some(row => !row.name.trim() || !Number.isSafeInteger(priceValue(row.price)) || priceValue(row.price) < 1 || row.category.trim().length > 100)) {
-      setMessage(t('راجع كل صف: الاسم مطلوب، السعر عدد صحيح أكبر من صفر، والقسم حتى ١٠٠ حرف.', 'Check every row: a name is required, price must be a positive whole number, and category is limited to 100 characters.'));
+    if (!rows.length || rows.some(row => !row.name.trim() || !Number.isSafeInteger(priceValue(row.price)) || priceValue(row.price) < 1 || resolveMenuCategory(row.category, restaurant) === undefined)) {
+      setMessage(t('راجع كل صف: الاسم مطلوب، السعر عدد صحيح أكبر من صفر، واختر قسماً محفوظاً أو اتركه بدون قسم.', 'Check every row: a name is required, price must be a positive whole number, and category must be saved or left empty.'));
       return;
     }
     setBusy(true); setMessage('');
@@ -59,13 +68,14 @@ export default function BulkMenuEditor({ t, endpoint, onChanged }: {
   return <details className="panel bulk-menu-editor">
     <summary>{t('إضافة أصناف بالجملة', 'Add menu items in bulk')}</summary>
     <p className="muted">{t('انقل البيانات من صورة المنيو إلى الصفوف وراجع الأسعار. أضف سنجل ودبل وتربل كأصناف منفصلة حالياً.', 'Enter the menu photo’s details below and review prices. Add single, double and triple as separate items for now.')}</p>
+    <MenuCategoryEditor t={t} restaurant={restaurant} endpoint={endpoint} onChanged={onChanged} createOnly/>
     <fieldset disabled={busy}>
       <label>{t('لصق من جدول (بدون صف العناوين)', 'Paste from a spreadsheet (without headers)')}
         <textarea value={paste} onChange={e => setPaste(e.target.value)} placeholder={t('الاسم ← السعر ← القسم ← الوصف ← رابط الصورة (أعمدة من Excel)', 'Name → Price → Category → Description → Photo URL (columns from Excel)')}/>
       </label>
       <button type="button" onClick={importPaste} disabled={!paste.trim()}>{t('إضافة للمعاينة', 'Add to preview')}</button>
       <div className="bulk-menu-scroll"><table><thead><tr>{[t('الاسم', 'Name'), t('السعر بالجنيه', 'Price (EGP)'), t('القسم', 'Category'), t('الوصف', 'Description'), t('رابط الصورة', 'Photo URL'), t('حذف', 'Remove')].map(label => <th key={label} scope="col">{label}</th>)}</tr></thead>
-        <tbody>{rows.map((row, index) => <tr key={index}>{(['name', 'price', 'category', 'description', 'photoUrl'] as const).map((key, column) => <td key={key}><input aria-label={`${[t('الاسم', 'Name'), t('السعر', 'Price'), t('القسم', 'Category'), t('الوصف', 'Description'), t('رابط الصورة', 'Photo URL')][column]} ${index + 1}`} value={row[key]} inputMode={key === 'price' ? 'numeric' : undefined} maxLength={key === 'category' ? 100 : undefined} onChange={e => update(index, key, e.target.value)}/></td>)}<td><button type="button" aria-label={`${t('حذف الصف', 'Remove row')} ${index + 1}`} onClick={() => setRows(current => current.filter((_, i) => i !== index))}>×</button></td></tr>)}</tbody>
+        <tbody>{rows.map((row, index) => <tr key={index}>{(['name', 'price', 'category', 'description', 'photoUrl'] as const).map((key, column) => <td key={key}>{key === 'category' ? <select aria-label={`${t('القسم', 'Category')} ${index + 1}`} value={row.category} onChange={e => update(index, 'category', e.target.value)}><option value="">{t('بدون قسم', 'No category')}</option>{categories.map(category => <option key={category.id} value={category.id}>{t(category.nameAr, category.nameEn || category.nameAr)}</option>)}</select> : <input aria-label={`${[t('الاسم', 'Name'), t('السعر', 'Price'), t('القسم', 'Category'), t('الوصف', 'Description'), t('رابط الصورة', 'Photo URL')][column]} ${index + 1}`} value={row[key]} inputMode={key === 'price' ? 'numeric' : undefined} onChange={e => update(index, key, e.target.value)}/>}</td>)}<td><button type="button" aria-label={`${t('حذف الصف', 'Remove row')} ${index + 1}`} onClick={() => setRows(current => current.filter((_, i) => i !== index))}>×</button></td></tr>)}</tbody>
       </table></div>
       <div className="button-row"><button type="button" onClick={() => setRows(current => [...current, emptyRow()])}>{t('إضافة صف', 'Add row')}</button><button type="button" className="primary" disabled={!rows.length} onClick={() => void save()}>{busy ? t('جاري الحفظ…', 'Saving…') : t(`حفظ ${rows.length} صنف`, `Save ${rows.length} items`)}</button></div>
     </fieldset>

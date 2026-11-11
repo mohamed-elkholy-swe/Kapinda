@@ -9,17 +9,24 @@ import java.util.UUID;
 
 @Service
 public class RestaurantService {
+  @Transactional(readOnly = true)
+  public List<RestaurantSummary> findPublicSummaries(String search) {
+    return restaurantRepository.findPublicSummaries(search == null ? "" : search.trim().toLowerCase(Locale.ROOT));
+  }
+
   private final RestaurantRepository restaurantRepository;
   private final MenuItemRepository menuItemRepository;
+  private final RestaurantCategoryService categories;
 
-  public RestaurantService(RestaurantRepository restaurantRepository, MenuItemRepository menuItemRepository) {
+  public RestaurantService(RestaurantRepository restaurantRepository, MenuItemRepository menuItemRepository, RestaurantCategoryService categories) {
     this.restaurantRepository = restaurantRepository;
     this.menuItemRepository = menuItemRepository;
+    this.categories = categories;
   }
 
   @Transactional(readOnly = true)
   public List<Restaurant> findAll(String category, String search) {
-    String normalizedCategory = normalize(category);
+    String normalizedCategory = RestaurantCategoryService.canonical(category);
     String normalizedSearch = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
 
     return restaurantRepository.findAll().stream()
@@ -27,7 +34,7 @@ public class RestaurantService {
       .filter(restaurant ->
         normalizedCategory.isBlank()
           || "all".equals(normalizedCategory)
-          || restaurant.getCategory().equals(normalizedCategory)
+          || RestaurantCategoryService.canonical(restaurant.getCategory()).equals(normalizedCategory)
       )
       .filter(restaurant ->
         normalizedSearch.isBlank()
@@ -64,18 +71,20 @@ public class RestaurantService {
   @Transactional
   public Restaurant create(SaveRestaurantRequest request) {
     RestaurantEntity entity = new RestaurantEntity(
-      UUID.randomUUID().toString(), request.name().trim(), normalize(request.category()),
+      UUID.randomUUID().toString(), request.name().trim(), categories.requireId(request.category()),
       "New", request.deliveryTime().trim(), request.minimumOrder(), request.art().trim()
     );
     updatePhoto(entity, request.photoUrl());
+    updateLocationAndHours(entity, request);
     return toResponse(restaurantRepository.save(entity));
   }
 
   @Transactional
   public Restaurant update(String restaurantId, SaveRestaurantRequest request) {
     RestaurantEntity entity = findEntityById(restaurantId);
-    entity.update(request.name().trim(), normalize(request.category()), request.deliveryTime().trim(), request.minimumOrder(), request.art().trim());
+    entity.update(request.name().trim(), categories.requireId(request.category()), request.deliveryTime().trim(), request.minimumOrder(), request.art().trim());
     updatePhoto(entity, request.photoUrl());
+    updateLocationAndHours(entity, request);
     return toResponse(entity);
   }
 
@@ -84,7 +93,7 @@ public class RestaurantService {
     RestaurantEntity restaurant = findEntityById(restaurantId);
     MenuItemEntity item = new MenuItemEntity(UUID.randomUUID().toString(), request.name().trim(), (request.description() == null ? "" : request.description().trim()), request.price());
     if (request.photoUrl() != null) item.setPhotoUrl(request.photoUrl().trim());
-    if (request.category() != null) item.setCategory(request.category().trim());
+    if (request.category() != null) item.setCategory(MenuCategoryCatalog.requireCategory(restaurant, request.category()));
     restaurant.addMenuItem(item);
     return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory(), item.isActive());
   }
@@ -95,7 +104,7 @@ public class RestaurantService {
     MenuItemEntity item = findMenuItemEntity(restaurant.getId(), itemId);
     item.update(request.name().trim(), (request.description() == null ? "" : request.description().trim()), request.price());
     if (request.photoUrl() != null) item.setPhotoUrl(request.photoUrl().trim());
-    if (request.category() != null) item.setCategory(request.category().trim());
+    if (request.category() != null) item.setCategory(MenuCategoryCatalog.requireCategory(restaurant, request.category()));
     return new MenuItem(item.getId(), item.getName(), item.getDescription(), item.getPrice(), item.getPhotoUrl(), item.getCategory(), item.isActive());
   }
 
@@ -167,13 +176,13 @@ public class RestaurantService {
 
   @Transactional
   public Restaurant addMenuCategory(String restaurantId, String name) {
+    return addMenuCategory(restaurantId, name, null);
+  }
+
+  @Transactional
+  public Restaurant addMenuCategory(String restaurantId, String nameAr, String nameEn) {
     RestaurantEntity entity = findEntityById(restaurantId);
-    RestaurantDetails details = entity.getDetails();
-    if (details == null) details = new RestaurantDetails();
-    var categories = new java.util.ArrayList<String>(details.menuCategories == null ? java.util.List.of() : details.menuCategories);
-    if (categories.stream().noneMatch(c -> c.equalsIgnoreCase(name.trim()))) categories.add(name.trim());
-    details.menuCategories = categories;
-    entity.setDetails(details);
+    MenuCategoryCatalog.add(entity, nameAr, nameEn);
     return toResponse(entity);
   }
 
@@ -187,10 +196,21 @@ public class RestaurantService {
       details.menuCategories = details.menuCategories.stream()
         .filter(value -> !category.equals(value.trim())).collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
     }
+    if (details != null && details.menuCategoryDefinitions != null) details.menuCategoryDefinitions = details.menuCategoryDefinitions.stream().filter(c -> !category.equals(c.id())).toList();
     entity.getMenu().stream()
       .filter(item -> item.getCategory() != null && category.equals(item.getCategory().trim()))
       .forEach(item -> item.setCategory(null));
     return toResponse(entity);
+  }
+
+  private void updateLocationAndHours(RestaurantEntity entity, SaveRestaurantRequest request) {
+    RestaurantDetails details = entity.getDetails();
+    if (details == null) details = new RestaurantDetails();
+    if (request.address() != null) details.address = request.address().trim();
+    if (request.openingTime() != null) details.openingTime = request.openingTime();
+    if (request.closingTime() != null) details.closingTime = request.closingTime();
+    if (request.menuImages() != null) details.menuImages = request.menuImages().stream().map(String::trim).distinct().toList();
+    entity.setDetails(details);
   }
 
   private void updatePhoto(RestaurantEntity entity, String photoUrl) {
@@ -201,7 +221,4 @@ public class RestaurantService {
     entity.setDetails(details);
   }
 
-  private String normalize(String value) {
-    return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
-  }
 }

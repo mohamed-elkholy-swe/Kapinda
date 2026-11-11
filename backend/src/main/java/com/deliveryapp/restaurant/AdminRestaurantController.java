@@ -34,7 +34,7 @@ public class AdminRestaurantController {
   @PostMapping("/{restaurantId}/menu-categories")
   public Restaurant addCategory(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @Valid @RequestBody SaveMenuCategoryRequest request) {
     requireAdmin(authenticatedUser);
-    return restaurantService.addMenuCategory(restaurantId, request.name());
+    return restaurantService.addMenuCategory(restaurantId, request.nameAr(), request.nameEn());
   }
 
   @DeleteMapping("/{restaurantId}/menu-categories")

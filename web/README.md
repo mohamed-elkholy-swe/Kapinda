@@ -42,6 +42,10 @@ The server service-account JSON is used only by the backend; replacing it does n
 
 ## Included
 
+The home page requests `/api/restaurants/summaries`, a scalar database projection containing card fields only (including `photoUrl` and `orderingTermsVerified` at the top level). It does not load menu entities or menu image lists. Dish search uses `?search=...` after a 250 ms typing pause; the database matches active dishes without returning them. Local translated-category matching, favourites and sorting remain available.
+
+Opening a restaurant requests `/api/restaurants/{id}`. Previously opened menus are cached in memory for the current app session and refreshed when reopened or during automatic refresh. Failed detail requests offer Retry. The existing full-list endpoint is preserved for compatibility. Restart/update the backend before serving this frontend because it requires the summaries endpoint.
+
 - Arabic-first RTL interface with an English switch and responsive layouts.
 - Public restaurant browsing, category filters, search across restaurants and dishes, and menus.
 - In-memory basket, quantity adjustment, cash checkout with phone/address/area validation.

@@ -28,4 +28,9 @@ public class RestaurantController {
   public Restaurant findById(@PathVariable String id) {
     return restaurantService.findPublicById(id);
   }
+
+  @GetMapping("/summaries")
+  public List<RestaurantSummary> summaries(@RequestParam(defaultValue = "") String search) {
+    return restaurantService.findPublicSummaries(search);
+  }
 }

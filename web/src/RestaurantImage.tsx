@@ -1,5 +1,5 @@
-import { useState } from 'react';
+import RetryImage from './RetryImage';
 export default function RestaurantImage({ src, name, fallback }: { src?: string | null; name: string; fallback: string }) {
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  return src && failedSrc !== src ? <img className="restaurant-photo" src={src} alt={name} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailedSrc(src)}/> : <span aria-hidden="true">{fallback}</span>;
+  const placeholder = <span aria-hidden="true">{fallback}</span>;
+  return src ? <RetryImage className="restaurant-photo" src={src} alt={name} loading="lazy" referrerPolicy="no-referrer" fallback={() => placeholder}/> : placeholder;
 }

@@ -165,3 +165,24 @@
     justify-content: start;
   }
 }
+
+.restaurant-rating > label { display: grid; gap: 8px; flex-basis: 100%; }
+.restaurant-rating textarea { width: 100%; min-height: 100px; }
+
+.customer-feedback { margin-bottom: 28px; }
+.customer-review { padding-block: 20px; border-bottom: 1px solid #ddd; }
+.customer-review header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.customer-review time { margin-inline-start: auto; }
+.customer-review p { white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 0; }
+.review-stars { color: #a35b00; }
+
+/* Shared page background across customer and staff screens. */
+:root { --app-background: #fffaf4; background: var(--app-background); }
+body, #root, .header, footer, .mobile-bottom-nav, .admin-shell, .admin-main { background: var(--app-background); }
+#root { min-height: 100dvh; }
+main { min-width: 0; }
+
+.restaurant-category-field, .new-restaurant-category { display: grid; gap: 12px; min-width: 0; }
+.new-restaurant-category { border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 0; }
+.restaurant-category-field select, .restaurant-category-field input { min-width: 0; max-width: 100%; }
+.restaurant-category-field > button { justify-self: start; }

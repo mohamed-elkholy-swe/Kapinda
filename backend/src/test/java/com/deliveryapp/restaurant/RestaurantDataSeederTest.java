@@ -8,6 +8,14 @@ import org.mockito.ArgumentCaptor;
 import java.util.Optional;
 
 class RestaurantDataSeederTest {
+  @Test void doesNotRegisterAutomaticImportsByDefault() {
+    new org.springframework.boot.test.context.runner.ApplicationContextRunner()
+      .withBean(RestaurantRepository.class, () -> mock(RestaurantRepository.class))
+      .withBean(ObjectMapper.class, ObjectMapper::new)
+      .withUserConfiguration(RestaurantDataSeeder.class)
+      .run(context -> assertTrue(context.getBeansOfType(RestaurantDataSeeder.class).isEmpty()));
+  }
+
   @Test void importsPhotosMenusAndDoesNotRepeatAnImport() throws Exception {
     var repository = mock(RestaurantRepository.class);
     var seeder = new RestaurantDataSeeder(repository, new ObjectMapper());

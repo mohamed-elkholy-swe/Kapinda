@@ -18,6 +18,6 @@ public class RestaurantRatingController {
   @PutMapping("/{id}")
   public RestaurantRatingService.RatingResponse rate(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String id,
       @Valid @RequestBody RestaurantRatingService.RatingRequest request) {
-    return service.rate(authenticatedUser, id, request.stars());
+    return service.rate(authenticatedUser, id, request.stars(), request.feedback());
   }
 }

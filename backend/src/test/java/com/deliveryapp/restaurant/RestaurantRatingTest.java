@@ -41,6 +41,19 @@ class RestaurantRatingTest {
     verify(ratings, times(2)).saveAndFlush(rating.getValue());
   }
 
+  @Test void savesAndEditsWrittenFeedback() {
+    allowCustomer();
+    when(ratings.averageForRestaurant("r")).thenReturn(5.0);
+    when(ratings.countByRestaurantId("r")).thenReturn(1L);
+    assertEquals("Great food", service.rate(user, "r", 5, " Great food ").feedback());
+    var rating = org.mockito.ArgumentCaptor.forClass(RestaurantRatingEntity.class);
+    verify(ratings).saveAndFlush(rating.capture());
+    when(ratings.findByRestaurantIdAndCustomerUid("r", user.uid())).thenReturn(Optional.of(rating.getValue()));
+    assertEquals("Great food", service.mine(user, "r").feedback());
+    assertEquals("", service.rate(user, "r", 5, "").feedback());
+    assertThrows(IllegalArgumentException.class, () -> service.rate(user, "r", 5, "x".repeat(2001)));
+  }
+
   @Test void rejectsStaffInactiveRestaurantsAndInvalidScores() {
     for (var role : List.of(AccountRole.ADMIN, AccountRole.SUB_ADMIN, AccountRole.RESTAURANT, AccountRole.DELIVERY)) {
       when(accounts.requireActive(user)).thenReturn(new AccountEntity("staff", "staff@example.test", role, AccountStatus.ACTIVE));
@@ -58,7 +71,7 @@ class RestaurantRatingTest {
 
   @Test void publicSummaryUsesCustomerRatingsAndKeepsImportedScoresSeparate() {
     when(restaurants.findById("r")).thenReturn(Optional.of(restaurant));
-    var service = new RestaurantService(restaurants, mock(MenuItemRepository.class));
+    var service = new RestaurantService(restaurants, mock(MenuItemRepository.class), mock(RestaurantCategoryService.class));
     assertEquals("New", service.findPublicById("r").rating());
     assertEquals(0, service.findPublicById("r").ratingCount());
     restaurant.updateCustomerRating(4.25, 4);

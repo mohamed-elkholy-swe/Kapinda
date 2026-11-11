@@ -22,6 +22,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class DeliveryAreaController implements org.springframework.boot.CommandLineRunner {
+  @org.springframework.beans.factory.annotation.Value("${app.initial-data.enabled:false}")
+  private boolean initialDataEnabled;
   private final DeliveryAreaRepository areas;
   private final AccountService accounts;
 
@@ -67,6 +69,7 @@ public class DeliveryAreaController implements org.springframework.boot.CommandL
   @Override
   @Transactional
   public void run(String... args) {
+    if (!initialDataEnabled) return;
     for (int index = 0; index < AREAS.size(); index++) {
       Area area = AREAS.get(index);
       areas.seed(index + 1, area.name(), area.fee());

@@ -26,7 +26,7 @@ public class RestaurantWorkspaceController {
   @PostMapping("/{restaurantId}/menu-categories")
   public Restaurant addCategory(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable String restaurantId, @Valid @RequestBody SaveMenuCategoryRequest request) {
     accounts.requireRestaurant(authenticatedUser, restaurantId);
-    return restaurants.addMenuCategory(restaurantId, request.name());
+    return restaurants.addMenuCategory(restaurantId, request.nameAr(), request.nameEn());
   }
 
   @DeleteMapping("/{restaurantId}/menu-categories")

@@ -1,3 +1,4 @@
+import { menuCategoryLabel } from './menuCategories';
 import { useId, useState, type ReactNode } from 'react';
 import type { MenuItem, Restaurant } from './types';
 import type { Translate } from './Orders';
@@ -23,7 +24,7 @@ export function ManagedMenuCategories({ restaurant, t, renderItem, endpoint, onD
   const categories = [...new Set([...(restaurant.details?.menuCategories || []).map(name => name.trim()), ...restaurant.menu.map(item => item.category?.trim() || '')])];
 
   async function remove(category: string) {
-    if (!window.confirm(t(`حذف قسم «${category}»؟ الأصناف ستنتقل إلى أصناف أخرى.`, `Delete “${category}”? Its dishes will move to Other items.`))) return;
+    if (!window.confirm(t(`حذف قسم «${menuCategoryLabel(category, restaurant, t)}»؟ الأصناف ستنتقل إلى أصناف أخرى.`, `Delete “${menuCategoryLabel(category, restaurant, t)}”? Its dishes will move to Other items.`))) return;
     setDeleting(true);
     setError('');
     try {
@@ -38,7 +39,7 @@ export function ManagedMenuCategories({ restaurant, t, renderItem, endpoint, onD
 
   return <>{error && <p role="alert" className="alert">{error}</p>}{categories.map(category => {
     const items = restaurant.menu.filter(item => (item.category?.trim() || '') === category);
-    return <MenuCategory key={JSON.stringify([restaurant.id, category, items.length])} title={category || t('أصناف أخرى', 'Other items')} count={items.length}
+    return <MenuCategory key={JSON.stringify([restaurant.id, category, items.length])} title={category ? menuCategoryLabel(category, restaurant, t) : t('أصناف أخرى', 'Other items')} count={items.length}
       action={category && <button type="button" className="danger" disabled={deleting} onClick={() => void remove(category)}>{t('حذف القسم', 'Delete category')}</button>}>
       {items.length ? <div className="dish-grid managed-dish-grid">{items.map(renderItem)}</div> : <p className="muted">{t('لا توجد أصناف في هذا القسم بعد.', 'No dishes in this category yet.')}</p>}
     </MenuCategory>;

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { Translate } from './Orders';
+import { launchAt } from './launch';
 
 // Thursday 12 November, 4 pm Egypt time (UTC+02:00).
-const launchAt = Date.parse('2026-11-12T16:00:00+02:00');
 
 export default function LaunchCountdown({ t }: { t: Translate }) {
   const [now, setNow] = useState(Date.now());

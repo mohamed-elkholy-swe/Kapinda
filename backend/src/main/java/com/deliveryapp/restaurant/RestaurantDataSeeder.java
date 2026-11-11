@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.initial-data.enabled", havingValue = "true")
 @org.springframework.core.annotation.Order(0)
 public class RestaurantDataSeeder implements CommandLineRunner {
   private final RestaurantRepository restaurantRepository;

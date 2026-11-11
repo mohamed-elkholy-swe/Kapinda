@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class RestaurantPhotoTest {
   @Test void deletingCategoryKeepsDishesAndOtherCategories() {
     var repository = mock(RestaurantRepository.class);
-    var service = new RestaurantService(repository, mock(MenuItemRepository.class));
+    var service = new RestaurantService(repository, mock(MenuItemRepository.class), mock(RestaurantCategoryService.class));
     var entity = new RestaurantEntity("r", "Kitchen", "food", "New", "30 min", 0, "restaurant");
     when(repository.findById("r")).thenReturn(Optional.of(entity));
     service.addMenuCategory("r", "Pizza & Pasta");
@@ -28,7 +28,7 @@ class RestaurantPhotoTest {
   @Test void categoriesCanBeCreatedBeforeItemsAndItemsCanRemainUncategorised() {
     var repository = mock(RestaurantRepository.class);
     var menu = mock(MenuItemRepository.class);
-    var service = new RestaurantService(repository, menu);
+    var service = new RestaurantService(repository, menu, mock(RestaurantCategoryService.class));
     var entity = new RestaurantEntity("r", "Kitchen", "food", "New", "30 min", 0, "restaurant");
     when(repository.findById("r")).thenReturn(Optional.of(entity));
     service.addMenuCategory("r", " Pizza ");
@@ -47,7 +47,7 @@ class RestaurantPhotoTest {
 
   @Test void photoEditsPreserveOtherRestaurantDetailsAndCanBeCleared() {
     var repository = mock(RestaurantRepository.class);
-    var service = new RestaurantService(repository, mock(MenuItemRepository.class));
+    var service = new RestaurantService(repository, mock(MenuItemRepository.class), mock(RestaurantCategoryService.class));
     var entity = new RestaurantEntity("r", "Kitchen", "food", "New", "30 min", 0, "restaurant");
     var details = new RestaurantDetails();
     details.address = "Existing address";
@@ -66,7 +66,7 @@ class RestaurantPhotoTest {
   @Test void menuPhotoIsReturnedAndUnsafeLinksAreRejected() {
     var repository = mock(RestaurantRepository.class);
     var menu = mock(MenuItemRepository.class);
-    var service = new RestaurantService(repository, menu);
+    var service = new RestaurantService(repository, menu, mock(RestaurantCategoryService.class));
     var entity = new RestaurantEntity("r", "Kitchen", "food", "New", "30 min", 0, "restaurant");
     when(repository.findById("r")).thenReturn(Optional.of(entity));
     var result = service.addMenuItem("r", new SaveMenuItemRequest("Dish", "Description", 50, "https://example.com/dish.jpg"));

@@ -11,7 +11,7 @@ class ActivationTest {
   @Test void inactiveRecordsStayManageableAndReactivationPreservesItemState() {
     var repository = mock(RestaurantRepository.class);
     var items = mock(MenuItemRepository.class);
-    var service = new RestaurantService(repository, items);
+    var service = new RestaurantService(repository, items, mock(RestaurantCategoryService.class));
     var restaurant = new RestaurantEntity("r", "Kitchen", "food", "New", "30 min", 0, "restaurant");
     var item = new MenuItemEntity("i", "Pizza", "", 50);
     restaurant.addMenuItem(item);

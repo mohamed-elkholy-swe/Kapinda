@@ -20,7 +20,8 @@ class GuestCheckoutTest {
   void guestCanSubmitAValidatedOrderWithoutFirebase() throws Exception {
     OrderService orders = mock(OrderService.class);
     AccountService accounts = mock(AccountService.class);
-    MockMvc mvc = MockMvcBuilders.standaloneSetup(new OrderController(orders, accounts))
+    var afterLaunch = java.time.Clock.fixed(java.time.Instant.parse("2026-11-12T14:00:00Z"), java.time.ZoneOffset.UTC);
+    MockMvc mvc = MockMvcBuilders.standaloneSetup(new OrderController(orders, accounts, afterLaunch))
       .addFilters(filter).build();
     mvc.perform(post("/api/orders").contentType("application/json").content("""
       {"customerPhone":"01012345678","customerAddress":"Street 12, floor 2","area":"Central",

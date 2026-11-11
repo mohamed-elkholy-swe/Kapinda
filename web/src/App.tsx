@@ -1,3 +1,5 @@
+import { authErrorMessage } from './authErrors';
+import { ordersHaveOpened, launchOrderMessage } from './launch';
 import LaunchCountdown from './LaunchCountdown';
 import HomeBrowse from './HomeBrowse';
 import Icon from './Icon';
@@ -12,7 +14,7 @@ import RestaurantImage from './RestaurantImage';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, type User } from 'firebase/auth';
 import { api, auth } from './api';
-import { statuses, type Account, type Line, type Order, type Restaurant } from './types';
+import { statuses, type Account, type Line, type Order, type Restaurant, type RestaurantSummary } from './types';
 import Admin from './Admin';
 import Avatar from './Avatar';
 import BrandMark from './BrandMark';
@@ -32,21 +34,45 @@ export default function App() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const t = (ar: string, en: string) => lang === 'ar' ? ar : en;
   const money = (n: number) => new Intl.NumberFormat(lang === 'ar' ? 'ar-EG' : 'en-EG', { style: 'currency', currency: 'EGP', maximumFractionDigits: 0 }).format(n);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [restaurants, setRestaurants] = useState<RestaurantSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [restaurantId, setRestaurantId] = useHistoryState<string>('restaurant', '');
-  const selected = restaurants.find(r => r.id === restaurantId) || null;
-  const setSelected = (restaurant: Restaurant | null) => setRestaurantId(restaurant?.id || '');
+  const [restaurantCache, setRestaurantCache] = useState<Record<string, Restaurant>>({});
+  const selected = restaurantCache[restaurantId] || null;
+  const [menuError, setMenuError] = useState('');
+  const [menuRequest, setMenuRequest] = useState(0);
+  const setSelected = (restaurant: { id: string } | null) => setRestaurantId(restaurant?.id || '');
   const [cart, setCart] = useState<Line[]>([]);
   const [guestOrder, setGuestOrder] = useState<Order | null>(null);
   const [view, setView] = useHistoryState<'browse' | 'cart' | 'track' | 'admin' | 'profile' | 'orders' | 'restaurant' | 'delivery' | 'workspace' | 'restaurantOrders' | 'notifications'>('page', 'browse');
   useEffect(()=>{window.scrollTo(0,0);},[view]);
+  useEffect(() => {
+    if (view !== 'restaurant' || !restaurantId) return;
+    let cancelled = false;
+    setMenuError('');
+    api<Restaurant>(`/restaurants/${encodeURIComponent(restaurantId)}`).then(restaurant => {
+      if (!cancelled) setRestaurantCache(cache => ({ ...cache, [restaurantId]: restaurant }));
+    }).catch(error => {
+      if (cancelled) return;
+      setMenuError(message(error));
+      setRestaurantCache(cache => {
+        const next = { ...cache }; delete next[restaurantId]; return next;
+      });
+    });
+    return () => { cancelled = true; };
+  }, [view, restaurantId, menuRequest]);
+  useAutoRefresh(async () => {
+    setMenuRequest(value => value + 1);
+  }, view === 'restaurant' && !!restaurantId);
+
 
   const [login, setLogin] = useState(false);
   const [register, setRegister] = useState(false);
+  const [authFailure, setAuthFailure] = useState<{ error: unknown } | null>(null);
+  useEffect(() => { setAuthFailure(null); }, [login, register]);
   const [showPassword, setShowPassword] = useState(false);
   useEffect(() => { setShowPassword(false); }, [login, register]);
   const [user, setUser] = useState<User | null>(null);
@@ -88,11 +114,11 @@ export default function App() {
   useEffect(() => { document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; }, [lang]);
   async function loadRestaurants() {
     setLoading(true); setError('');
-    try { setRestaurants(await api<Restaurant[]>('/restaurants')); }
+    try { setRestaurants(await api<RestaurantSummary[]>('/restaurants/summaries')); }
     catch (e) { setError(message(e)); } finally { setLoading(false); }
   }
   useEffect(() => { void loadRestaurants(); }, []);
-  useAutoRefresh(async () => { setRestaurants(await api<Restaurant[]>('/restaurants')); });
+  useAutoRefresh(async () => { setRestaurants(await api<RestaurantSummary[]>('/restaurants/summaries')); });
   useEffect(() => {
     if (!isAdministrator(account?.role)) return;
     if (view === 'workspace' || view === 'restaurantOrders' || view === 'delivery') {
@@ -128,9 +154,9 @@ export default function App() {
     const timer = setTimeout(() => setNotice(''), 3500);
     return () => clearTimeout(timer);
   }, [notice]);
-  async function action(task: () => Promise<void>) {
-    setBusy(true); setError('');
-    try { await task(); } catch (e) { diagnostic('ui.action.failed', { code: errorCode(e) }); setError(message(e)); } finally { setBusy(false); }
+  async function action(task: () => Promise<void>, authentication = false) {
+    setBusy(true); setError(''); setAuthFailure(null);
+    try { await task(); } catch (e) { diagnostic('ui.action.failed', { code: errorCode(e) }); if (authentication) setAuthFailure({ error: e }); else setError(message(e)); } finally { setBusy(false); }
   }
   async function googleSignIn() {
     diagnostic('auth.google.started');
@@ -140,10 +166,6 @@ export default function App() {
       diagnostic('auth.google.succeeded');
     } catch (e) {
       diagnostic('auth.google.failed', { code: errorCode(e) });
-      if (errorCode(e) === 'auth/internal-error') throw new Error(t(
-        'تعذر إتمام تسجيل الدخول باستخدام Google (auth/internal-error). جرّب Chrome أو Edge، وراجع إعدادات Google في Firebase. تفاصيل المرحلة في سجل المتصفح.',
-        'Google sign-in could not complete (auth/internal-error). Try Chrome or Edge and check the Google provider in Firebase. See the browser console for the failing stage.'
-      ));
       throw e;
     }
   }
@@ -158,9 +180,13 @@ export default function App() {
         else await signInWithEmailAndPassword(auth, email, password);
         diagnostic('auth.email.succeeded');
       } catch (e) { diagnostic('auth.email.failed', { code: errorCode(e) }); throw e; }
-    });
+    }, true);
   }
   function add(restaurant: Restaurant, item: Restaurant['menu'][number]) {
+    if (!ordersHaveOpened() && !isAdministrator(account?.role)) {
+      window.alert(launchOrderMessage(t));
+      return;
+    }
     setCart(current => {
       const found = current.find(line => line.restaurantId === restaurant.id && line.menuItemId === item.id);
       return found ? current.map(line => line === found ? { ...line, quantity: line.quantity + 1 } : line) : [...current, { restaurantId: restaurant.id, restaurantName: restaurant.name, menuItemId: item.id, name: item.name, price: item.price, quantity: 1 }];
@@ -188,7 +214,12 @@ export default function App() {
   const subtotal = cart.reduce((sum, line) => sum + line.price * line.quantity, 0);
   const count = cart.reduce((sum, line) => sum + line.quantity, 0);
   async function checkout(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); if (submitting.current || !cart.length) return;
+    event.preventDefault();
+    if (!ordersHaveOpened() && !isAdministrator(account?.role)) {
+      setError(launchOrderMessage(t));
+      return;
+    }
+    if (submitting.current || !cart.length) return;
     const data = new FormData(event.currentTarget);
     submitting.current = true;
     await action(async () => {
@@ -197,7 +228,6 @@ export default function App() {
     });
     submitting.current = false;
   }
-  const visible = restaurants.filter(r => (!category || r.category === category) && `${r.name} ${r.category} ${r.menu.map(m => m.name).join(' ')}`.toLowerCase().includes(search.toLowerCase()));
   return <>
     {user && account?.status === 'ACTIVE' && !login && <PushPrompt key={user.uid} uid={user.uid} t={t}/>}
     <LaunchCountdown t={t}/>
@@ -213,7 +243,8 @@ export default function App() {
       {view === 'browse' && <HomeBrowse restaurants={restaurants} loading={loading} t={t} money={money} search={search} setSearch={setSearch} category={category} setCategory={setCategory} onOpen={r=>{setSelected(r);setView('restaurant');}} onRetry={()=>void loadRestaurants()}/>}
       {view === 'cart' && <section className="page"><span className="eyebrow">{t('باقي خطوة واحدة','ALMOST AT YOUR DOOR')}</span><h1>{t('سلة طلباتك','Your basket')}</h1>{!cart.length ? <div className="empty"><h2>{t('السلة لسه فاضية','Your basket is empty')}</h2><button className="primary" onClick={() => setView('browse')}>{t('اكتشف المطاعم','Explore restaurants')}</button></div> : <div className="checkout-grid"><div className="panel">{cart.map((line, index) => <div className="cart-line" key={`${line.restaurantId}-${line.menuItemId}`}><div><h3>{line.name}</h3><small>{line.restaurantName}</small><p>{money(line.price * line.quantity)}</p></div><div className="stepper"><button aria-label={t('تقليل الكمية','Decrease quantity')} onClick={() => setCart(cart.flatMap((l, i) => i !== index ? [l] : l.quantity > 1 ? [{ ...l, quantity: l.quantity - 1 }] : []))}>−</button><span>{line.quantity}</span><button aria-label={t('زيادة الكمية','Increase quantity')} onClick={() => setCart(cart.map((l, i) => i === index ? { ...l, quantity: l.quantity + 1 } : l))}>+</button></div></div>)}<div className="total-row"><span>{t('المجموع الفرعي','Subtotal')}</span><strong>{money(subtotal)}</strong></div>{deliveryFee === undefined ? <p className="muted">{t('اختر المنطقة لحساب رسوم التوصيل.', 'Select an area to calculate delivery.')}</p> : <><div className="total-row"><span>{t('رسوم التوصيل', 'Delivery fee')}</span><strong>{money(deliveryFee)}</strong></div><div className="total-row"><span>{t('الإجمالي', 'Total')}</span><strong>{money(subtotal + deliveryFee)}</strong></div></>}</div><form className="panel form" onSubmit={checkout}><h2>{t('بيانات التوصيل','Delivery details')}</h2><label>{t('رقم الموبايل','Phone number')}<input name="phone" type="tel" defaultValue={account?.phoneNumber || user?.phoneNumber || ''} required minLength={10} maxLength={20} pattern="[+0-9 ()-]{10,20}" autoComplete="tel"/></label><label>{t('المنطقة','Area')}<select name="area" required value={deliveryArea} disabled={!deliveryAreas.length || deliveryAreasFailed} onChange={event => setDeliveryArea(event.target.value)}><option value="">{deliveryAreasFailed ? t('تعذر تحميل المناطق', 'Could not load areas') : deliveryAreas.length ? t('اختر المنطقة', 'Select your area') : t('جاري تحميل المناطق…', 'Loading areas…')}</option>{deliveryAreas.map(area => <option key={area.name} value={area.name}>{area.name}: {money(area.fee)}</option>)}</select></label>{deliveryAreasFailed && <button type="button" onClick={() => void loadDeliveryAreas()}>{t('أعد المحاولة', 'Retry')}</button>}<label>{t('العنوان بالتفصيل','Full address')}<textarea name="address" required minLength={8} autoComplete="street-address" placeholder={t('الشارع، العمارة، الدور، وعلامة مميزة','Street, building, floor, and a nearby landmark')}/></label><div className="payment">◉ {t('الدفع نقداً عند الاستلام','Cash on delivery')}</div>{<button className="primary" disabled={busy || deliveryFee === undefined || (!!user && !account)}>{busy ? t('جاري إرسال الطلب…','Placing order…') : t('تأكيد الطلب','Place order')}</button>}</form></div>}</section>}
       {view === 'track' && !user && guestOrder && <section className="page"><div className="panel"><h1>{t('تم تأكيد طلبك', 'Your order is confirmed')}</h1><p>{t('رقم الطلب', 'Order number')}: <strong>#{guestOrder.id}</strong></p><p>{t('الإجمالي', 'Total')}: {money(guestOrder.total)}</p><p>{t('الدفع نقداً عند الاستلام. احتفظ برقم الطلب للمتابعة.', 'Cash on delivery. Keep your order number for reference.')}</p><button className="primary" onClick={() => setView('browse')}>{t('اكتشف المطاعم', 'Explore restaurants')}</button></div></section>}
-      {view === 'restaurant' && selected && <RestaurantPage account={account} actorUid={user?.uid} onLogin={() => setLogin(true)} onRated={async () => { setRestaurants(await api<Restaurant[]>('/restaurants')); }} restaurant={selected} cart={cart} t={t} money={money} onBack={() => { setSelected(null); setView('browse'); }} onAdd={item => add(selected, item)} onQuantity={(itemId, delta) => setCart(current => current.flatMap(line => line.restaurantId === selected.id && line.menuItemId === itemId ? line.quantity + delta > 0 ? [{ ...line, quantity: line.quantity + delta }] : [] : [line]))}/>}
+      {view === 'restaurant' && !selected && <section className="page"><button onClick={() => { setSelected(null); setView('browse'); }}>{t('العودة للمطاعم', 'Back to restaurants')}</button>{menuError ? <div className="alert" role="alert">{menuError} <button onClick={() => { setMenuError(''); setMenuRequest(value => value + 1); }}>{t('إعادة المحاولة', 'Retry')}</button></div> : <p role="status">{t('جاري تحميل المنيو…', 'Loading menu…')}</p>}</section>}
+      {view === 'restaurant' && selected && <RestaurantPage account={account} actorUid={user?.uid} onLogin={() => setLogin(true)} onRated={async () => { setMenuRequest(value => value + 1); await loadRestaurants(); }} restaurant={selected} cart={cart} t={t} money={money} onBack={() => { setSelected(null); setView('browse'); }} onAdd={item => add(selected, item)} onQuantity={(itemId, delta) => setCart(current => current.flatMap(line => line.restaurantId === selected.id && line.menuItemId === itemId ? line.quantity + delta > 0 ? [{ ...line, quantity: line.quantity + delta }] : [] : [line]))}/>}
       {view === 'delivery' && user && canUseDelivery(account?.role) && <Delivery supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money}/>}
       {view === 'workspace' && user && canManageRestaurants(account?.role) && <RestaurantWorkspace supervisor={isAdministrator(account?.role)} key={user.uid} t={t} money={money} onChanged={() => void loadRestaurants()}/>}
       {view === 'profile' && user && <Profile key={user.uid} user={user} account={account} t={t} money={money} onSaved={setAccount} onOrders={() => setView('orders')} onBrowse={() => setView('browse')} onOpen={() => setView('orders')} onLogout={() => void action(async () => { await disablePush(false); await signOut(auth!); })}/>}
@@ -227,7 +258,7 @@ export default function App() {
     ] as const).map(([section,icon,label])=><button key={section} className={view==='admin'&&(adminSection===section||(section==='restaurants'&&['menu','restaurant-form'].includes(adminSection)))?'active':''} aria-current={view==='admin'&&adminSection===section?'page':undefined} onClick={()=>{setAdminSection(section);setView('admin');}}><Icon name={icon}/><span>{label}</span></button>)}</nav> : <><nav className="mobile-bottom-nav" aria-label={t('التنقل السريع','Quick navigation')}><button className={view==='browse'?'active':''} onClick={()=>setView('browse')}><Icon name="home"/><span>{t('الرئيسية','Home')}</span></button><button onClick={()=>{setView('browse');setTimeout(()=>{document.getElementById('mobile-food-search')?.focus();},100);}}><Icon name="search"/><span>{t('بحث','Search')}</span></button><button className={['orders','restaurantOrders','delivery','admin'].includes(view)?'active':''} onClick={()=>{if(!user){setLogin(true);return;}if(isAdministrator(account?.role)){setAdminSection('orders');setView('admin');}else setView(account?.role==='RESTAURANT'?'restaurantOrders':account?.role==='DELIVERY'?'delivery':'orders');}}><Icon name="orders"/><span>{t('الطلبات','Orders')}</span></button><button className={view==='profile'?'active':''} onClick={()=>user?setView('profile'):setLogin(true)}><Icon name="user"/><span>{t('حسابي','Profile')}</span></button></nav></>}
     <footer><div className="brand">{t('كابيندا','Kapinda')} <span>♡</span></div><p>{t('طعم محلي، وناس من عندنا.','Local flavours. Familiar faces.')}</p><small>القناطر الخيرية · Al Qanater El Khayria</small><p><a className="footer-facebook" href="https://web.facebook.com/profile.php?id=61595233080545" target="_blank" rel="noopener noreferrer" aria-label={t('كابيندا على فيسبوك', 'Kapinda on Facebook')}><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12a12 12 0 1 0-13.875 11.854v-8.385H7.078V12h3.047V9.356c0-3.008 1.792-4.67 4.533-4.67 1.313 0 2.686.234 2.686.234v2.953h-1.513c-1.49 0-1.956.925-1.956 1.874V12h3.328l-.532 3.469h-2.796v8.385A12 12 0 0 0 24 12Z"/></svg></a></p></footer>
     {notice && <div className="toast" role="status">✓ {notice}</div>}
-    {login && <div className="overlay" onClick={() => setLogin(false)}><section className="modal login-modal" role="dialog" aria-modal="true" aria-label={t('تسجيل الدخول','Sign in')} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') setLogin(false); }}><button className="close" aria-label={t('إغلاق','Close')} onClick={() => setLogin(false)}>×</button><span className="eyebrow">{t('أهلاً بيك','WELCOME TO THE NEIGHBOURHOOD')}</span><h2>{register ? t('حساب جديد','Create account') : t('نورت كابيندا','Welcome back')}</h2>{!auth && <p className="alert">{t('تسجيل الدخول يحتاج إعداد Firebase. راجع web/README.md.','Sign-in needs Firebase configuration. See web/README.md.')}</p>}{error && <p className="alert" role="alert">{error}</p>}<form className="form" onSubmit={authenticate}><label>{t('البريد الإلكتروني','Email')}<input autoFocus name="email" type="email" required autoComplete="email"/></label><label>{t('كلمة المرور','Password')}<span className="password-field"><input id="login-password" name="password" type={showPassword ? 'text' : 'password'} required minLength={6} autoComplete={register ? 'new-password' : 'current-password'}/><button type="button" className="password-toggle" aria-controls="login-password" aria-label={t('إظهار كلمة المرور', 'Show password')} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? t('إخفاء', 'Hide') : t('إظهار', 'Show')}</button></span></label><button className="primary" disabled={busy || !auth}>{register ? t('إنشاء حساب','Create account') : t('تسجيل الدخول','Sign in')}</button></form><button className="google full" disabled={busy || !auth} onClick={() => void action(googleSignIn)}>{t('المتابعة باستخدام Google','Continue with Google')}</button><button className="text-button full" onClick={() => { setRegister(!register); setError(''); }}>{register ? t('عندك حساب؟ سجل دخول','Have an account? Sign in') : t('جديد هنا؟ أنشئ حساب','New here? Create an account')}</button></section></div>}
+    {login && <div className="overlay" onClick={() => setLogin(false)}><section className="modal login-modal" role="dialog" aria-modal="true" aria-label={t('تسجيل الدخول','Sign in')} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') setLogin(false); }}><button className="close" aria-label={t('إغلاق','Close')} onClick={() => setLogin(false)}>×</button><span className="eyebrow">{t('أهلاً بيك','WELCOME TO THE NEIGHBOURHOOD')}</span><h2>{register ? t('حساب جديد','Create account') : t('نورت كابيندا','Welcome back')}</h2>{!auth && <p className="alert">{t('تسجيل الدخول غير متاح حاليًا. حاول مرة أخرى بعد قليل.', 'Sign-in is currently unavailable. Please try again shortly.')}</p>}{authFailure && <p className="alert" role="alert">{authErrorMessage(authFailure.error, t)}</p>}<form className="form" onSubmit={authenticate}><label>{t('البريد الإلكتروني','Email')}<input autoFocus name="email" type="email" required autoComplete="email"/></label><label>{t('كلمة المرور','Password')}<span className="password-field"><input id="login-password" name="password" type={showPassword ? 'text' : 'password'} required minLength={6} autoComplete={register ? 'new-password' : 'current-password'}/><button type="button" className="password-toggle" aria-controls="login-password" aria-label={t('إظهار كلمة المرور', 'Show password')} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? t('إخفاء', 'Hide') : t('إظهار', 'Show')}</button></span></label><button className="primary" disabled={busy || !auth}>{register ? t('إنشاء حساب','Create account') : t('تسجيل الدخول','Sign in')}</button></form><button className="google full" disabled={busy || !auth} onClick={() => void action(googleSignIn, true)}>{t('المتابعة باستخدام Google','Continue with Google')}</button><button className="text-button full" onClick={() => { setRegister(!register); setError(''); }}>{register ? t('عندك حساب؟ سجل دخول','Have an account? Sign in') : t('جديد هنا؟ أنشئ حساب','New here? Create an account')}</button></section></div>}
   </>;
 }
 export function message(error: unknown) { return error instanceof Error ? error.message : 'Something went wrong / حدث خطأ'; }

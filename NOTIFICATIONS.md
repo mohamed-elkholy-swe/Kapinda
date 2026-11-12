@@ -24,6 +24,8 @@ Restart the backend to create `push_device` and `push_job` tables using the exis
 
 ## Delivery behavior
 
+Active delivery staff receive notifications from PLACED onward for unassigned orders and their own assigned orders. The delivery queue shows unassigned orders during PLACED, ACCEPTED, PREPARING, and READY. Claiming remains available only at READY; customer contact details remain hidden until assignment.
+
 The authenticated account that creates or changes an order is excluded from both in-app notification history and push delivery for that action, across all its devices. Other eligible recipients still receive updates. Customer-created orders notify eligible staff; guest orders have no signed-in actor to exclude. Repeating the current order status does not create an event. Previously saved notifications remain unchanged.
 
 Order changes create delivery jobs in the same database transaction as notification history. Only new notification records enqueue push messages. The scheduled worker sees committed jobs, checks current role/order access and device ownership, and retries failures with exponential backoff up to eight attempts. Expired tokens are removed. Superseded order statuses and device registrations older than 60 days are skipped. Enabled devices refresh registration when Kapinda loads or regains focus.

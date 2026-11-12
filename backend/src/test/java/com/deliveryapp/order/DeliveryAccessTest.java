@@ -24,6 +24,20 @@ class DeliveryAccessTest {
     var after = service.list("courier-a").get(0);
     assertTrue(after.assignedToMe()); assertEquals("01012345678", after.order().customerPhone()); assertEquals("Private address", after.order().customerAddress());
   }
+  @Test void earlyOrdersAreVisibleButCannotBeClaimedOrUpdated() {
+    for (var status : List.of(OrderStatus.PLACED, OrderStatus.ACCEPTED, OrderStatus.PREPARING)) {
+      var order = order(); order.setStatus(status);
+      when(repository.findDeliveryTasks("courier-a")).thenReturn(List.of(order));
+      when(repository.findAll()).thenReturn(List.of(order));
+      var task = service.list("courier-a").get(0);
+      assertEquals(status, task.order().status());
+      assertFalse(task.canClaim()); assertFalse(task.canUpdate());
+      assertEquals("", task.order().customerPhone());
+      assertEquals(1, service.list("admin", true).size());
+      assertThrows(IllegalArgumentException.class, () -> service.claim("courier-a", 1L));
+      assertThrows(SecurityException.class, () -> service.update("courier-a", 1L, OrderStatus.OUT_FOR_DELIVERY));
+    }
+  }
   @Test void secondCourierCannotClaimOrUpdateSomeoneElsesDelivery() {
     var order = order(); service.claim("courier-a", 1L);
     assertThrows(IllegalArgumentException.class, () -> service.claim("courier-b", 1L));

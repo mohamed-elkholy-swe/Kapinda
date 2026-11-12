@@ -26,15 +26,12 @@ public class NotificationService {
       case ADMIN, SUB_ADMIN -> true;
       case CUSTOMER -> account.getUid().equals(order.getCustomerUid());
       case RESTAURANT -> order.getItems().stream().anyMatch(i->account.getRestaurantIds().contains(i.getRestaurantId()));
-      case DELIVERY -> account.getUid().equals(order.getDeliveryPersonUid()) || (order.getDeliveryPersonUid()==null && order.getStatus()==OrderStatus.READY);
+      case DELIVERY -> account.getUid().equals(order.getDeliveryPersonUid()) || order.getDeliveryPersonUid()==null;
     };
   }
 
   public static boolean eligible(AccountEntity account, OrderEntity order, String status) {
-    if(!visible(account,order)) return false;
-    // A courier's assignment does not grant access to earlier kitchen notifications.
-    if(account.getRole()==AccountRole.DELIVERY) return Set.of("READY","OUT_FOR_DELIVERY","DELIVERED","CANCELLED").contains(status);
-    return true;
+    return visible(account,order);
   }
 
   public record Item(String id, Long orderId, String status, java.time.Instant createdAt, boolean read, String target) {}

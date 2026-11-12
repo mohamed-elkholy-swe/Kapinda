@@ -7,15 +7,20 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 class RestaurantOrderInboxTest {
  @Test void includesAssignedOrdersButRedactsOtherRestaurantsAndCustomerContact(){
-  var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);var service=mock(OrderService.class);
+  var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);var profiles=mock(AccountRepository.class);
+  var service=new OrderService(mock(com.deliveryapp.restaurant.RestaurantService.class),repository,profiles,mock(DeliveryAreaRepository.class));
   var user=new AuthenticatedUser("staff","staff@example.test");var account=new AccountEntity("staff","staff@example.test",AccountRole.RESTAURANT,AccountStatus.ACTIVE);account.assignAccess(AccountRole.RESTAURANT,Set.of("mine"));
   when(accounts.requireRole(user,AccountRole.RESTAURANT)).thenReturn(account);
   var order=new OrderEntity(OrderStatus.PLACED,"buyer","private-phone","private-address","City",140,18,158,Instant.now());
   order.addItem(new OrderItemEntity("mine","My kitchen","dish","Pizza",2,50,100));order.addItem(new OrderItemEntity("other","Other kitchen","secret","Other dish",1,40,40));
   when(repository.findAssignedRestaurantOrders(Set.of("mine"))).thenReturn(List.of(order));
-  when(service.customerName(order)).thenReturn("Ahmed Ali");
+  var buyer=new AccountEntity("buyer","buyer@example.test",AccountRole.CUSTOMER,AccountStatus.ACTIVE);buyer.updateProfile("Ahmed Ali","private-phone");
+  var courier=new AccountEntity("courier","courier@example.test",AccountRole.DELIVERY,AccountStatus.ACTIVE);courier.updateProfile("Mohamed Hassan","01012345678");
+  order.assignDeliveryPerson("courier");
+  when(profiles.findById("buyer")).thenReturn(Optional.of(buyer));when(profiles.findById("courier")).thenReturn(Optional.of(courier));
   var result=new RestaurantOrdersController(accounts,repository,service).list(user);
   assertEquals("Ahmed Ali",result.get(0).customerName());assertEquals(1,result.size());assertEquals(1,result.get(0).items().size());assertEquals("Pizza",result.get(0).items().get(0).itemName());assertEquals(100,result.get(0).subtotal());assertEquals("",result.get(0).customerPhone());assertEquals("",result.get(0).customerAddress());
+  assertTrue(result.get(0).deliveryAssigned());assertEquals("Mohamed Hassan",result.get(0).deliveryPersonName());assertEquals("01012345678",result.get(0).deliveryPersonPhone());
  }
  @Test void noAssignmentsReturnsEmptyAndCustomersCannotReadRestaurantOrders(){
   var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);var controller=new RestaurantOrdersController(accounts,repository,mock(OrderService.class));var user=new AuthenticatedUser("u","u@example.test");

@@ -34,15 +34,16 @@ class NotificationActorTest {
   @Test void newCustomerOrderNotifiesStaffButNotItsCreator() {
     var repository=mock(NotificationRepository.class);var accounts=mock(AccountRepository.class);
     var service=new NotificationService(mock(AccountService.class),mock(OrderRepository.class),repository,accounts);
-    when(accounts.findAll()).thenReturn(List.of(account("admin",AccountRole.ADMIN),account("buyer",AccountRole.CUSTOMER)));
+    when(accounts.findAll()).thenReturn(List.of(account("admin",AccountRole.ADMIN),account("courier",AccountRole.DELIVERY),account("buyer",AccountRole.CUSTOMER)));
     service.record(new OrderEntity(OrderStatus.PLACED,"buyer","phone","address","City",50,18,68,Instant.now()),"buyer");
     verify(repository).insertOnce(anyString(),eq("admin"),any(),eq("PLACED"));
+    verify(repository).insertOnce(anyString(),eq("courier"),any(),eq("PLACED"));
     verify(repository,never()).insertOnce(anyString(),eq("buyer"),any(),anyString());
   }
   @Test void guestOrdersStillNotifyEligibleStaff() {
     var repository=mock(NotificationRepository.class);var accounts=mock(AccountRepository.class);
     var service=new NotificationService(mock(AccountService.class),mock(OrderRepository.class),repository,accounts);
-    when(accounts.findAll()).thenReturn(List.of(account("admin",AccountRole.ADMIN)));
+    when(accounts.findAll()).thenReturn(List.of(account("admin",AccountRole.ADMIN),account("courier",AccountRole.DELIVERY)));
     service.record(new OrderEntity(OrderStatus.PLACED,null,"phone","address","City",50,18,68,Instant.now()),null);
     verify(repository).insertOnce(anyString(),eq("admin"),any(),eq("PLACED"));
   }

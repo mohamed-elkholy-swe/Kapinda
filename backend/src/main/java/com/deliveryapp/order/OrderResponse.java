@@ -15,8 +15,14 @@ public record OrderResponse(
   int total,
   Instant createdAt,
   boolean restaurantCanUpdate,
-  String customerName
+  String customerName,
+  boolean deliveryAssigned,
+  String deliveryPersonName,
+  String deliveryPersonPhone
 ) {
+  public OrderResponse(String id,OrderStatus status,String customerPhone,String customerAddress,String area,List<OrderItemResponse> items,int subtotal,int deliveryFee,int total,Instant createdAt,boolean restaurantCanUpdate,String customerName) {
+    this(id,status,customerPhone,customerAddress,area,items,subtotal,deliveryFee,total,createdAt,restaurantCanUpdate,customerName,false,"","");
+  }
   public OrderResponse(String id,OrderStatus status,String customerPhone,String customerAddress,String area,List<OrderItemResponse> items,int subtotal,int deliveryFee,int total,Instant createdAt) {
     this(id,status,customerPhone,customerAddress,area,items,subtotal,deliveryFee,total,createdAt,false, "");
   }

@@ -108,6 +108,7 @@ public class OrderService {
   }
 
   OrderResponse toResponse(OrderEntity order) {
+    var courier = deliveryAccount(order);
     return new OrderResponse(
       String.valueOf(order.getId()),
       order.getStatus(),
@@ -130,8 +131,16 @@ public class OrderService {
       order.getTotal(),
       order.getCreatedAt(),
       false,
-      customerName(order)
+      customerName(order),
+      order.getDeliveryPersonUid() != null,
+      courier.map(com.deliveryapp.account.AccountEntity::getDisplayName).map(String::trim).orElse(""),
+      courier.map(com.deliveryapp.account.AccountEntity::getPhoneNumber).map(String::trim).orElse("")
     );
+  }
+
+  java.util.Optional<com.deliveryapp.account.AccountEntity> deliveryAccount(OrderEntity order) {
+    if (order.getDeliveryPersonUid() == null || order.getDeliveryPersonUid().isBlank()) return java.util.Optional.empty();
+    return accounts.findById(order.getDeliveryPersonUid());
   }
 
   String customerName(OrderEntity order) {

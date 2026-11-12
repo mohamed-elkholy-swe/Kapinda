@@ -13,7 +13,7 @@ class NotificationAccessTest {
   var restaurant=account("staff",AccountRole.RESTAURANT);restaurant.assignAccess(AccountRole.RESTAURANT,Set.of("mine"));
   assertTrue(NotificationService.visible(restaurant,order));assertFalse(NotificationService.visible(account("other",AccountRole.RESTAURANT),order));assertTrue(NotificationService.visible(account("buyer",AccountRole.CUSTOMER),order));assertFalse(NotificationService.visible(account("stranger",AccountRole.CUSTOMER),order));
   for(var role:List.of(AccountRole.ADMIN,AccountRole.SUB_ADMIN))assertTrue(NotificationService.visible(account("admin",role),order));
-  var courier=account("courier",AccountRole.DELIVERY);assertFalse(NotificationService.visible(courier,order));order.setStatus(OrderStatus.READY);assertTrue(NotificationService.visible(courier,order));order.assignDeliveryPerson("other");assertFalse(NotificationService.visible(courier,order));order.assignDeliveryPerson("courier");order.setStatus(OrderStatus.OUT_FOR_DELIVERY);assertTrue(NotificationService.visible(courier,order));
+  var courier=account("courier",AccountRole.DELIVERY);assertTrue(NotificationService.visible(courier,order));order.setStatus(OrderStatus.READY);assertTrue(NotificationService.visible(courier,order));order.assignDeliveryPerson("other");assertFalse(NotificationService.visible(courier,order));order.assignDeliveryPerson("courier");order.setStatus(OrderStatus.OUT_FOR_DELIVERY);assertTrue(NotificationService.visible(courier,order));
  }
  @Test void cannotMarkAnotherUsersNotificationRead(){
   var accounts=mock(AccountService.class);var repository=mock(NotificationRepository.class);var service=new NotificationService(accounts,mock(OrderRepository.class),repository,mock(AccountRepository.class));var user=new AuthenticatedUser("me","me@example.test");when(repository.findByIdAndRecipientUid("someone-elses","me")).thenReturn(Optional.empty());
@@ -27,11 +27,11 @@ class NotificationAccessTest {
  @Test void staffDoNotReceivePersonalOrderNotificationsOutsideTheirOperationalScope(){
   var order=new OrderEntity(OrderStatus.PLACED,"staff","phone","address","City",50,18,68,Instant.now());order.addItem(new OrderItemEntity("other","Other kitchen","dish","Dish",1,50,50));
   var restaurant=account("staff",AccountRole.RESTAURANT);restaurant.assignAccess(AccountRole.RESTAURANT,Set.of("mine"));assertFalse(NotificationService.visible(restaurant,order));
-  assertFalse(NotificationService.visible(account("staff",AccountRole.DELIVERY),order));
+  assertTrue(NotificationService.visible(account("staff",AccountRole.DELIVERY),order));
  }
- @Test void couriersCannotReadKitchenStagesEvenAfterAssignment(){
+ @Test void couriersCanReadKitchenStagesAfterAssignment(){
   var order=new OrderEntity(OrderStatus.OUT_FOR_DELIVERY,"buyer","phone","address","City",50,18,68,Instant.now());order.assignDeliveryPerson("courier");var courier=account("courier",AccountRole.DELIVERY);
-  for(var status:List.of("PLACED","ACCEPTED","PREPARING"))assertFalse(NotificationService.eligible(courier,order,status));
+  for(var status:List.of("PLACED","ACCEPTED","PREPARING"))assertTrue(NotificationService.eligible(courier,order,status));
   assertTrue(NotificationService.eligible(courier,order,"OUT_FOR_DELIVERY"));
  }
  @Test void bulkActionsOnlyUseAuthenticatedRecipientAndReadingNeverCreatesNotifications(){

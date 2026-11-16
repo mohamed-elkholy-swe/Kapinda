@@ -23,7 +23,7 @@ class GuestCheckoutTest {
     MockMvc mvc = MockMvcBuilders.standaloneSetup(new OrderController(orders, accounts))
       .addFilters(filter).build();
     mvc.perform(post("/api/orders").contentType("application/json").content("""
-      {"customerPhone":"01012345678","customerAddress":"Street 12, floor 2","area":"Central",
+      {"customerName":"Ahmed Ali","customerPhone":"01012345678","customerAddress":"Street 12, floor 2","area":"Central",
        "items":[{"restaurantId":"1","menuItemId":"2","quantity":1}]}
       """)).andExpect(status().isCreated());
     verify(orders).create(isNull(), any(CreateOrderRequest.class));

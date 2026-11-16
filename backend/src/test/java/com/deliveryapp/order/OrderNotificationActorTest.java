@@ -30,7 +30,7 @@ class OrderNotificationActorTest {
     var actor=new AuthenticatedUser("restaurant","restaurant@example.test");var accounts=mock(AccountService.class);
     var account=new AccountEntity(actor.uid(),actor.email(),AccountRole.RESTAURANT,AccountStatus.ACTIVE);account.assignAccess(AccountRole.RESTAURANT,java.util.Set.of("kitchen"));
     when(accounts.requireRole(actor,AccountRole.RESTAURANT)).thenReturn(account);
-    new RestaurantOrdersController(accounts,repository,orders).updateStatus(actor,1L,OrderStatus.ACCEPTED);
+    new RestaurantOrdersController(accounts,repository,orders).updateStatus(actor,1L,OrderStatus.ACCEPTED,null);
     verify(notifications).record(order,"restaurant");
   }
   @Test void courierAndSupervisorIdentityIsUsedRatherThanAssignedCourier() {

@@ -25,6 +25,10 @@ Customers browse restaurants, order and view personal history. Restaurant staff 
 
 Restart the backend after Java changes to apply role and order-status database upgrades.
 
+## Ordering
+
+New orders require a customer name (up to 100 characters), including guest checkout. The checkout name is saved on each order; existing orders retain the account-name fallback. New orders are blocked daily from 04:00 through 15:59:59 in Africa/Cairo and reopen at 16:00. The backend enforces the schedule, and the customer screens show the notice in Arabic and English. Browsing and existing order updates remain available. Restart the backend after deploying to add the nullable customer_name column for existing orders.
+
 ## Checks
 
 Backend: mvn test. Web: npm test and npm run build.

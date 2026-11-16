@@ -28,6 +28,9 @@ public class OrderEntity {
   @Column(name = "customer_phone", nullable = false)
   private String customerPhone;
 
+  @Column(name = "customer_name", length = 100)
+  private String customerName;
+
   @Column(name = "customer_uid")
   private String customerUid;
 
@@ -96,6 +99,9 @@ public class OrderEntity {
     return customerPhone;
   }
 
+  public String getCustomerName() { return customerName; }
+  public void setCustomerName(String name) { this.customerName = name; }
+
   public String getCustomerUid() {
     return customerUid;
   }
@@ -131,6 +137,27 @@ public class OrderEntity {
   }
 
   public void setStatus(OrderStatus status) {
+    items.forEach(item -> item.setRestaurantStatus(item.getRestaurantStatus()));
     this.status = status;
+    if (java.util.Set.of(OrderStatus.PLACED, OrderStatus.ACCEPTED, OrderStatus.PREPARING, OrderStatus.READY).contains(status)) {
+      items.forEach(item -> item.setRestaurantStatus(status));
+    }
+  }
+
+  public void updateRestaurantStatus(String restaurantId, OrderStatus next) {
+    if (!java.util.Set.of(OrderStatus.PLACED, OrderStatus.ACCEPTED, OrderStatus.PREPARING).contains(status))
+      throw new IllegalArgumentException("This order is no longer open for kitchen updates");
+    var selected = items.stream().filter(item -> item.getRestaurantId().equals(restaurantId)).toList();
+    if (selected.isEmpty()) throw new IllegalArgumentException("Restaurant is not part of this order");
+    boolean allowed = selected.stream().allMatch(item ->
+      (item.getRestaurantStatus() == OrderStatus.PLACED && next == OrderStatus.ACCEPTED)
+      || (item.getRestaurantStatus() == OrderStatus.ACCEPTED && next == OrderStatus.PREPARING)
+      || (item.getRestaurantStatus() == OrderStatus.PREPARING && next == OrderStatus.READY));
+    if (!allowed) throw new IllegalArgumentException("Restaurant orders must move from placed to accepted to preparing to ready");
+    // Materialize legacy states before changing the overall status used as their fallback.
+    items.forEach(item -> item.setRestaurantStatus(item.getRestaurantStatus()));
+    selected.forEach(item -> item.setRestaurantStatus(next));
+    status = items.stream().map(OrderItemEntity::getRestaurantStatus)
+      .min(java.util.Comparator.comparingInt(Enum::ordinal)).orElse(status);
   }
 }

@@ -33,3 +33,9 @@ Order changes create delivery jobs in the same database transaction as notificat
 Jobs use database row locks to prevent simultaneous workers claiming the same job. Delivery is at least once: a server crash after Firebase accepts a message but before the database commit can cause a retry. The stable notification tag helps replace repeated alerts. This is an installable online web app; offline browsing is not implemented.
 
 Reference: https://firebase.google.com/docs/cloud-messaging/web/get-started
+
+## Mixed-restaurant orders and delivery access
+
+Each restaurant advances its own items through PLACED, ACCEPTED, PREPARING and READY. The overall order follows the least advanced kitchen, so collection is available only after every kitchen is ready. Overall status changes create the existing notifications; individual kitchen progress is visible in order details. Existing orders without saved kitchen states inherit their previous overall kitchen status.
+
+The delivery All orders screen provides full order details, including customer contact, for active delivery staff and administrators. Viewing another courier's order does not permit claiming or changing it. Only unassigned READY orders can be claimed; assigned couriers can advance READY to OUT_FOR_DELIVERY to DELIVERED.

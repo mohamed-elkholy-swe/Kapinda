@@ -19,6 +19,7 @@ class RestaurantOrderInboxTest {
   order.assignDeliveryPerson("courier");
   when(profiles.findById("buyer")).thenReturn(Optional.of(buyer));when(profiles.findById("courier")).thenReturn(Optional.of(courier));
   var result=new RestaurantOrdersController(accounts,repository,service).list(user);
+  assertTrue(result.get(0).restaurantCanUpdate());assertEquals(OrderStatus.PLACED,result.get(0).items().get(0).restaurantStatus());
   assertEquals("Ahmed Ali",result.get(0).customerName());assertEquals(1,result.size());assertEquals(1,result.get(0).items().size());assertEquals("Pizza",result.get(0).items().get(0).itemName());assertEquals(100,result.get(0).subtotal());assertEquals("",result.get(0).customerPhone());assertEquals("",result.get(0).customerAddress());
   assertTrue(result.get(0).deliveryAssigned());assertEquals("Mohamed Hassan",result.get(0).deliveryPersonName());assertEquals("01012345678",result.get(0).deliveryPersonPhone());
  }
@@ -28,16 +29,29 @@ class RestaurantOrderInboxTest {
   when(accounts.requireRole(user,AccountRole.RESTAURANT)).thenThrow(new SecurityException());assertThrows(SecurityException.class,()->controller.list(user));
  }
 
- @Test void staffCanAdvanceAssignedKitchenOrdersButCannotSkipOrEditMixedOrders(){
-  var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);var service=mock(OrderService.class);var controller=new RestaurantOrdersController(accounts,repository,service);
+ @Test void staffCanAdvanceTheirKitchenInMixedOrdersButCannotEditOtherRestaurants(){
+  var accounts=mock(AccountService.class);var repository=mock(OrderRepository.class);
+  var service=new OrderService(mock(com.deliveryapp.restaurant.RestaurantService.class),repository,mock(AccountRepository.class),mock(DeliveryAreaRepository.class));
+  var controller=new RestaurantOrdersController(accounts,repository,service);
   var user=new AuthenticatedUser("staff","staff@example.test");var account=new AccountEntity("staff","staff@example.test",AccountRole.RESTAURANT,AccountStatus.ACTIVE);account.assignAccess(AccountRole.RESTAURANT,Set.of("mine"));when(accounts.requireRole(user,AccountRole.RESTAURANT)).thenReturn(account);
-  var order=new OrderEntity(OrderStatus.PLACED,"buyer","phone","address","City",50,18,68,Instant.now());order.addItem(new OrderItemEntity("mine","Kitchen","dish","Dish",1,50,50));when(repository.lockById(1L)).thenReturn(Optional.of(order));
-  controller.updateStatus(user,1L,OrderStatus.ACCEPTED);verify(service).updateStatus("1",OrderStatus.ACCEPTED,user.uid());
-  assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.READY));
-  order.setStatus(OrderStatus.ACCEPTED);controller.updateStatus(user,1L,OrderStatus.PREPARING);verify(service).updateStatus("1",OrderStatus.PREPARING,user.uid());
-  order.setStatus(OrderStatus.PREPARING);controller.updateStatus(user,1L,OrderStatus.READY);verify(service).updateStatus("1",OrderStatus.READY,user.uid());
-  assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.DELIVERED));
-  order.addItem(new OrderItemEntity("other","Other","other","Other",1,50,50));assertThrows(SecurityException.class,()->controller.updateStatus(user,1L,OrderStatus.READY));
-  account.assignAccess(AccountRole.RESTAURANT,Set.of());assertThrows(SecurityException.class,()->controller.updateStatus(user,1L,OrderStatus.READY));
+  var order=new OrderEntity(OrderStatus.PLACED,"buyer","phone","address","City",100,18,118,Instant.now());
+  order.addItem(new OrderItemEntity("mine","Kitchen","dish","Dish",1,50,50));
+  order.addItem(new OrderItemEntity("other","Other kitchen","other","Other dish",1,50,50));
+  when(repository.lockById(1L)).thenReturn(Optional.of(order));
+  assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.READY,"mine"));
+  controller.updateStatus(user,1L,OrderStatus.ACCEPTED,null);
+  controller.updateStatus(user,1L,OrderStatus.PREPARING,"mine");
+  controller.updateStatus(user,1L,OrderStatus.READY,"mine");
+  assertEquals(OrderStatus.READY,order.getItems().get(0).getRestaurantStatus());
+  assertEquals(OrderStatus.PLACED,order.getItems().get(1).getRestaurantStatus());
+  assertEquals(OrderStatus.PLACED,order.getStatus());
+  assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.DELIVERED,"mine"));
+  assertThrows(SecurityException.class,()->controller.updateStatus(user,1L,OrderStatus.ACCEPTED,"other"));
+  account.assignAccess(AccountRole.RESTAURANT,Set.of("mine","other"));
+  assertThrows(IllegalArgumentException.class,()->controller.updateStatus(user,1L,OrderStatus.ACCEPTED,null));
+  controller.updateStatus(user,1L,OrderStatus.ACCEPTED,"other");
+  assertEquals(OrderStatus.ACCEPTED,order.getStatus());
+  account.assignAccess(AccountRole.RESTAURANT,Set.of());
+  assertThrows(SecurityException.class,()->controller.updateStatus(user,1L,OrderStatus.READY,"mine"));
  }
 }

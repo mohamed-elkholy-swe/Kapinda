@@ -42,6 +42,10 @@ public class OrderItemEntity {
   @Column(name = "line_total", nullable = false)
   private int lineTotal;
 
+  @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+  @Column(name = "restaurant_status")
+  private OrderStatus restaurantStatus;
+
   protected OrderItemEntity() {}
 
   public OrderItemEntity(
@@ -93,4 +97,15 @@ public class OrderItemEntity {
   public int getLineTotal() {
     return lineTotal;
   }
+
+  public OrderStatus getRestaurantStatus() {
+    if (restaurantStatus != null) return restaurantStatus;
+    if (order == null) return OrderStatus.PLACED;
+    return switch (order.getStatus()) {
+      case PLACED, ACCEPTED, PREPARING, READY, CANCELLED -> order.getStatus();
+      default -> OrderStatus.READY;
+    };
+  }
+
+  public void setRestaurantStatus(OrderStatus status) { this.restaurantStatus = status; }
 }

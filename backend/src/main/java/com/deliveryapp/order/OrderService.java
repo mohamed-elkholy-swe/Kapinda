@@ -3,7 +3,6 @@ package com.deliveryapp.order;
 import com.deliveryapp.restaurant.MenuItemEntity;
 import com.deliveryapp.restaurant.RestaurantEntity;
 import com.deliveryapp.restaurant.RestaurantService;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -21,16 +20,28 @@ public class OrderService {
   private final com.deliveryapp.account.AccountRepository accounts;
 
   private final DeliveryAreaRepository deliveryAreas;
+  private final java.time.Clock clock;
 
+  @org.springframework.beans.factory.annotation.Autowired
   public OrderService(RestaurantService restaurantService, OrderRepository orderRepository, com.deliveryapp.account.AccountRepository accounts, DeliveryAreaRepository deliveryAreas) {
+    this(restaurantService, orderRepository, accounts, deliveryAreas, java.time.Clock.systemUTC());
+  }
+
+  OrderService(RestaurantService restaurantService, OrderRepository orderRepository, com.deliveryapp.account.AccountRepository accounts, DeliveryAreaRepository deliveryAreas, java.time.Clock clock) {
     this.restaurantService = restaurantService;
     this.orderRepository = orderRepository;
     this.accounts = accounts;
     this.deliveryAreas = deliveryAreas;
+    this.clock = clock;
   }
 
   @Transactional
   public OrderResponse create(String customerUid, CreateOrderRequest request) {
+    if (!OrderingHours.isOpen(clock)) throw new IllegalArgumentException(OrderingHours.NOTICE);
+    if (request.customerName() == null || request.customerName().isBlank())
+      throw new IllegalArgumentException("اسم العميل مطلوب / Customer name is required");
+    if (request.customerName().length() > 100)
+      throw new IllegalArgumentException("الاسم يجب ألا يتجاوز ١٠٠ حرف / Name must not exceed 100 characters");
     var area = deliveryAreas.findByName(request.area().trim())
       .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Select a supported delivery area"));
     List<OrderItemEntity> orderItems = new ArrayList<>();
@@ -65,9 +76,10 @@ public class OrderService {
       subtotal,
       area.getFee(),
       subtotal + area.getFee(),
-      Instant.now()
+      clock.instant()
     );
 
+    order.setCustomerName(request.customerName().strip());
     orderItems.forEach(order::addItem);
     OrderEntity saved=orderRepository.save(order);
     notifyOrder(saved, customerUid);
@@ -100,7 +112,7 @@ public class OrderService {
 
   @Transactional
   public OrderResponse updateStatus(String id, OrderStatus status, String actorUid) {
-    OrderEntity order = orderRepository.findById(parseId(id)).orElseThrow(() -> new OrderNotFoundException(id));
+    OrderEntity order = orderRepository.lockById(parseId(id)).orElseThrow(() -> new OrderNotFoundException(id));
     if (order.getStatus() == status) return toResponse(order);
     order.setStatus(status);
     notifyOrder(order, actorUid);
@@ -123,7 +135,8 @@ public class OrderService {
           item.getItemName(),
           item.getQuantity(),
           item.getUnitPrice(),
-          item.getLineTotal()
+          item.getLineTotal(),
+          item.getRestaurantStatus()
         ))
         .toList(),
       order.getSubtotal(),
@@ -138,12 +151,20 @@ public class OrderService {
     );
   }
 
+  @Transactional
+  public void updateRestaurantStatus(OrderEntity order, String restaurantId, OrderStatus next, String actorUid) {
+    var previous = order.getStatus();
+    order.updateRestaurantStatus(restaurantId, next);
+    if (previous != order.getStatus()) notifyOrder(order, actorUid);
+  }
+
   java.util.Optional<com.deliveryapp.account.AccountEntity> deliveryAccount(OrderEntity order) {
     if (order.getDeliveryPersonUid() == null || order.getDeliveryPersonUid().isBlank()) return java.util.Optional.empty();
     return accounts.findById(order.getDeliveryPersonUid());
   }
 
   String customerName(OrderEntity order) {
+    if (order.getCustomerName() != null && !order.getCustomerName().isBlank()) return order.getCustomerName().strip();
     if (order.getCustomerUid() == null || order.getCustomerUid().isBlank()) return "";
     return accounts.findById(order.getCustomerUid())
       .map(com.deliveryapp.account.AccountEntity::getDisplayName)

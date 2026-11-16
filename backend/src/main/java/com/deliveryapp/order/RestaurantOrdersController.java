@@ -20,21 +20,25 @@ public class RestaurantOrdersController {
       var items=order.getItems().stream().filter(item -> ids.contains(item.getRestaurantId())).toList();
       var full=orders.toResponse(order);
       int subtotal=items.stream().mapToInt(OrderItemEntity::getLineTotal).sum();
-      return new OrderResponse(String.valueOf(order.getId()),order.getStatus(),"","",order.getArea(),items.stream().map(i -> new OrderItemResponse(i.getRestaurantId(),i.getRestaurantName(),i.getMenuItemId(),i.getItemName(),i.getQuantity(),i.getUnitPrice(),i.getLineTotal())).toList(),subtotal,0,subtotal,order.getCreatedAt(),!order.getItems().isEmpty() && order.getItems().stream().allMatch(i->ids.contains(i.getRestaurantId())),full.customerName(),full.deliveryAssigned(),full.deliveryPersonName(),full.deliveryPersonPhone());
+      return new OrderResponse(String.valueOf(order.getId()),order.getStatus(),"","",order.getArea(),items.stream().map(i -> new OrderItemResponse(i.getRestaurantId(),i.getRestaurantName(),i.getMenuItemId(),i.getItemName(),i.getQuantity(),i.getUnitPrice(),i.getLineTotal(),i.getRestaurantStatus())).toList(),subtotal,0,subtotal,order.getCreatedAt(),!items.isEmpty(),full.customerName(),full.deliveryAssigned(),full.deliveryPersonName(),full.deliveryPersonPhone());
     }).toList();
   }
 
   @PutMapping("/{id}/status")
   @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
   @Transactional
-  public void updateStatus(@RequestAttribute AuthenticatedUser authenticatedUser,@PathVariable Long id,@RequestParam OrderStatus status) {
+  public void updateStatus(@RequestAttribute AuthenticatedUser authenticatedUser,@PathVariable Long id,@RequestParam OrderStatus status,@RequestParam(required=false) String restaurantId) {
     var account=accounts.requireRole(authenticatedUser,AccountRole.RESTAURANT);
     var order=repository.lockById(id).orElseThrow(()->new OrderNotFoundException(String.valueOf(id)));
-    if(!account.getRole().isAdministrator() && (order.getItems().isEmpty() || order.getItems().stream().anyMatch(i->!account.getRestaurantIds().contains(i.getRestaurantId())))) throw new SecurityException("Only assigned restaurants can update this order. Mixed-restaurant orders require an administrator.");
-    boolean allowed=(order.getStatus()==OrderStatus.PLACED && status==OrderStatus.ACCEPTED)
-      ||(order.getStatus()==OrderStatus.ACCEPTED && status==OrderStatus.PREPARING)
-      ||(order.getStatus()==OrderStatus.PREPARING && status==OrderStatus.READY);
-    if(!allowed) throw new IllegalArgumentException("Restaurant orders must move from placed to accepted to preparing to ready.");
-    orders.updateStatus(String.valueOf(id),status,authenticatedUser.uid());
+    var candidates=order.getItems().stream().map(OrderItemEntity::getRestaurantId).distinct()
+      .filter(restaurant -> account.getRole().isAdministrator() || account.getRestaurantIds().contains(restaurant)).toList();
+    if(candidates.isEmpty()) throw new SecurityException("Only assigned restaurants can update this order");
+    String selectedRestaurant=restaurantId;
+    if(selectedRestaurant==null || selectedRestaurant.isBlank()) {
+      if(candidates.size()!=1) throw new IllegalArgumentException("Choose the restaurant to update");
+      selectedRestaurant=candidates.get(0);
+    }
+    if(!candidates.contains(selectedRestaurant)) throw new SecurityException("Only assigned restaurants can update this order");
+    orders.updateRestaurantStatus(order,selectedRestaurant,status,authenticatedUser.uid());
   }
 }

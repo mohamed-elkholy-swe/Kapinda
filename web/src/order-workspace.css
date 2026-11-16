@@ -16,6 +16,10 @@
 .order-courier-phone:hover { text-decoration: underline; }
 .tracking-card > .courier-contact { margin: 18px 0; padding: 16px 0; border-block: 1px solid var(--border, #ddd); }
 .workspace-mobile { display: none; }
+.restaurant-progress { display: grid; gap: 9px; margin-block: 14px; }
+.restaurant-progress > div { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.restaurant-actions, .restaurant-action { display: grid; gap: 9px; }
+.restaurant-action { margin-bottom: 12px; }
 .tracking-card .order-progress { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 8px; }
 .tracking-card .order-progress li:nth-child(3)::after { display: none; }
 @media(max-width: 760px) {

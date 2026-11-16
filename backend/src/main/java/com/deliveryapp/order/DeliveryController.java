@@ -15,6 +15,11 @@ public class DeliveryController {
     var account = accounts.requireRole(authenticatedUser, AccountRole.DELIVERY);
     return delivery.list(authenticatedUser.uid(), account.getRole().isAdministrator());
   }
+  @GetMapping("/all")
+  public List<DeliveryService.Task> all(@RequestAttribute AuthenticatedUser authenticatedUser) {
+    var account = accounts.requireRole(authenticatedUser, AccountRole.DELIVERY);
+    return delivery.listAll(authenticatedUser.uid(), account.getRole().isAdministrator());
+  }
   @PostMapping("/{id}/claim")
   @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
   public void claim(@RequestAttribute AuthenticatedUser authenticatedUser, @PathVariable Long id) {

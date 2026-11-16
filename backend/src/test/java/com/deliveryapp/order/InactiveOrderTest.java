@@ -22,8 +22,8 @@ class InactiveOrderTest {
     restaurant.addMenuItem(item);
     when(restaurants.findEntityById("r")).thenReturn(restaurant);
     when(restaurants.findMenuItemEntity("r", "i")).thenReturn(item);
-    var service = new OrderService(restaurants, orders, mock(AccountRepository.class), areas);
-    var request = new CreateOrderRequest("01000000000", "Customer address", "City", List.of(new CreateOrderItemRequest("r", "i", 1)));
+    var service = new OrderService(restaurants, orders, mock(AccountRepository.class), areas, java.time.Clock.fixed(java.time.Instant.parse("2026-11-17T16:00:00Z"), java.time.ZoneOffset.UTC));
+    var request = new CreateOrderRequest("Ahmed Ali", "01000000000", "Customer address", "City", List.of(new CreateOrderItemRequest("r", "i", 1)));
     restaurant.setActive(false);
     assertEquals(HttpStatus.CONFLICT, assertThrows(ResponseStatusException.class, () -> service.create("buyer", request)).getStatusCode());
     restaurant.setActive(true); item.setActive(false);

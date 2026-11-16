@@ -26,9 +26,10 @@ public class ApiExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException exception) {
+    var nameError = exception.getBindingResult().getFieldError("customerName");
     return ResponseEntity
       .badRequest()
-      .body(error(HttpStatus.BAD_REQUEST, "Invalid request data"));
+      .body(error(HttpStatus.BAD_REQUEST, nameError == null ? "Invalid request data" : nameError.getDefaultMessage()));
   }
 
   @ExceptionHandler(SecurityException.class)

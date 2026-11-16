@@ -58,8 +58,25 @@ class DeliveryAccessTest {
     doThrow(new SecurityException("Access denied")).when(accounts).requireRole(user, AccountRole.DELIVERY);
     var controller = new DeliveryController(accounts, delivery);
     assertThrows(SecurityException.class, () -> controller.list(user));
+    assertThrows(SecurityException.class, () -> controller.all(user));
     assertThrows(SecurityException.class, () -> controller.claim(user, 1L));
     verifyNoInteractions(delivery);
+  }
+  @Test void allOrdersIncludeFullDetailsWithoutGrantingAnotherCouriersPermissions() {
+    for (var status : OrderStatus.values()) {
+      var order = order(); order.setStatus(status); order.assignDeliveryPerson("courier-a");
+      when(repository.findAll()).thenReturn(List.of(order));
+      var task = service.listAll("courier-b", false).get(0);
+      assertEquals(status, task.order().status());
+      assertEquals("01012345678", task.order().customerPhone());
+      assertEquals("Private address", task.order().customerAddress());
+      assertTrue(task.assignedToOther()); assertFalse(task.canClaim()); assertFalse(task.canUpdate());
+      assertThrows(SecurityException.class, () -> service.update("courier-b", 1L, OrderStatus.DELIVERED));
+    }
+    var available = order(); when(repository.findAll()).thenReturn(List.of(available));
+    assertTrue(service.listAll("courier-b", false).get(0).canClaim());
+    service.claim("courier-b", 1L);
+    assertTrue(service.listAll("courier-b", false).get(0).canUpdate());
   }
   @Test void supervisorsSeeAndUpdateAnotherCouriersDeliveryWithoutTakingOwnership() {
     var order = order(); order.assignDeliveryPerson("courier-a");
@@ -80,7 +97,9 @@ class DeliveryAccessTest {
     for (var role : List.of(AccountRole.ADMIN, AccountRole.SUB_ADMIN)) {
       when(accountsRepository.findById("staff")).thenReturn(Optional.of(new AccountEntity("staff", "staff@example.test", role, AccountStatus.ACTIVE)));
       new DeliveryController(accounts, delivery).list(actor);
+      new DeliveryController(accounts, delivery).all(actor);
     }
     verify(delivery, times(2)).list("staff", true);
+    verify(delivery, times(2)).listAll("staff", true);
   }
 }

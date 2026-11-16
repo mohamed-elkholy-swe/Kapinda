@@ -1,0 +1,3 @@
+.ordering-hours-notice { margin: 18px auto; padding: 16px 20px; width: min(1160px, calc(100% - 32px)); border: 1px solid var(--border, #e5e9ef); border-radius: 12px; background: #fff4eb; color: #713b1c; line-height: 1.7; }
+.ordering-hours-notice strong { display: block; margin-bottom: 6px; }
+.ordering-hours-notice p { margin: 3px 0; }

@@ -23,11 +23,20 @@ public class DeliveryService {
     var source = supervisor ? repository.findAll().stream()
       .filter(order -> order.getDeliveryPersonUid() != null || java.util.Set.of(OrderStatus.PLACED, OrderStatus.ACCEPTED, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED).contains(order.getStatus()))
       .sorted(java.util.Comparator.comparing(OrderEntity::getCreatedAt).reversed()).toList() : repository.findDeliveryTasks(uid);
+    return tasks(source, uid, supervisor, false);
+  }
+  @Transactional(readOnly = true)
+  public List<Task> listAll(String uid, boolean supervisor) {
+    var source = repository.findAll().stream()
+      .sorted(java.util.Comparator.comparing(OrderEntity::getCreatedAt).reversed()).toList();
+    return tasks(source, uid, supervisor, true);
+  }
+  private List<Task> tasks(List<OrderEntity> source, String uid, boolean supervisor, boolean fullDetails) {
     return source.stream().map(order -> {
       boolean mine = uid.equals(order.getDeliveryPersonUid());
       boolean assigned = order.getDeliveryPersonUid() != null;
       OrderResponse full = orders.toResponse(order);
-      OrderResponse visible = mine || supervisor ? full : new OrderResponse(full.id(), full.status(), "", "", full.area(), full.items(), full.subtotal(), full.deliveryFee(), full.total(), full.createdAt(), false, full.customerName(), full.deliveryAssigned(), full.deliveryPersonName(), full.deliveryPersonPhone());
+      OrderResponse visible = mine || supervisor || fullDetails ? full : new OrderResponse(full.id(), full.status(), "", "", full.area(), full.items(), full.subtotal(), full.deliveryFee(), full.total(), full.createdAt(), false, full.customerName(), full.deliveryAssigned(), full.deliveryPersonName(), full.deliveryPersonPhone());
       return new Task(mine, assigned && !mine, !assigned && order.getStatus() == OrderStatus.READY,
         assigned && (mine || supervisor) && (order.getStatus() == OrderStatus.READY || order.getStatus() == OrderStatus.OUT_FOR_DELIVERY), visible);
     }).toList();

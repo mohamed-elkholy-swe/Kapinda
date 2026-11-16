@@ -16,29 +16,18 @@ import com.deliveryapp.account.AuthenticatedUser;
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
-  static final java.time.Instant LAUNCH_AT = java.time.OffsetDateTime.parse("2026-11-12T16:00:00+02:00").toInstant();
-  private final java.time.Clock clock;
   private final OrderService orderService;
   private final AccountService accountService;
 
-  @org.springframework.beans.factory.annotation.Autowired
   public OrderController(OrderService orderService, AccountService accountService) {
-    this(orderService, accountService, java.time.Clock.systemUTC());
-  }
-
-  public OrderController(OrderService orderService, AccountService accountService, java.time.Clock clock) {
     this.orderService = orderService;
     this.accountService = accountService;
-    this.clock = clock;
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public OrderResponse create(@RequestAttribute(required = false) AuthenticatedUser authenticatedUser, @Valid @RequestBody CreateOrderRequest request) {
-    var account = authenticatedUser == null ? null : accountService.requireActive(authenticatedUser);
-    if (clock.instant().isBefore(LAUNCH_AT) && (account == null || !account.getRole().isAdministrator())) {
-      throw new SecurityException("Orders open Thursday, November 12 at 4:00 PM Egypt time. / الطلبات هتبدأ يوم الخميس ١٢ نوفمبر الساعة ٤ مساءً بتوقيت مصر.");
-    }
+    if (authenticatedUser != null) accountService.requireActive(authenticatedUser);
     return orderService.create(authenticatedUser == null ? null : authenticatedUser.uid(), request);
   }
 
